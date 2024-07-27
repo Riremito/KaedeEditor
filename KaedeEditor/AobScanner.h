@@ -3,7 +3,13 @@
 
 #include"Frost.h"
 
-AddrInfo FindDecKEY(Frost &f);
-AddrInfo FindArray(Frost &f, std::wstring &msg);
+typedef struct {
+	std::wstring tag;
+	std::wstring patch;
+	std::wstring mode;
+	AddrInfo info;
+} AddrInfoEx;
+
+std::vector<AddrInfoEx> AobScannerMain(Frost &f);
 
 #endif

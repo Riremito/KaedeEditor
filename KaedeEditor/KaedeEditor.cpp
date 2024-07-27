@@ -20,6 +20,8 @@ enum SubControl {
 enum ListViewIndex {
 	LVA_VA,
 	LVA_NAME_TAG,
+	LVA_MODE,
+	LVA_PATCH,
 };
 
 typedef struct {
@@ -72,13 +74,20 @@ bool AobScanThread(Alice &a) {
 		return false;
 	}
 
-	std::vector<AddrInfo> test = f.AobScanFin(L"CC CC CC CC CC");
-
-	for (auto &v : test) {
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, DWORDtoString(v.VA));
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, DWORDtoString(v.VA));
+	ADDINFO(L"[Enable]");
+	for (auto &v : AobScannerMain(f)) {
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, DWORDtoString((DWORD)v.info.VA));
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.patch);
+		if (v.info.VA) {
+			ADDINFO(L"// " + v.tag);
+			ADDINFO(DWORDtoString((DWORD)v.info.VA) + L":");
+			ADDINFO(L"db " + v.patch);
+			ADDINFO(L""); // LF
+		}
 	}
-
+	ADDINFO(L"[Disable]");
 	ADDINFO(L"OK!");
 	a.ChangeState(BUTTON_AOBSCAN, TRUE); // unlock button
 	return true;
@@ -101,7 +110,9 @@ bool OnCreate(Alice &a) {
 	a.Button(BUTTON_AOBSCAN, L"AobScan", 590, 3, 100);
 	a.ListView(LISTVIEW_AOBSCAN_RESULT, 3, 30, (VIEWER_WIDTH - 6), 300);
 	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"VA", 120);
-	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"NameTag", (VIEWER_WIDTH - 150));
+	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"NameTag", 300);
+	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"Mode", 100);
+	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"Patch", 200);
 	a.EditBox(EDIT_SELECTED, 3, 340, L"", (VIEWER_WIDTH - 6));
 	a.TextArea(TEXTAREA_INFO, 3, 360, (VIEWER_WIDTH - 6), 200);
 	a.ReadOnly(TEXTAREA_INFO);
