@@ -80,6 +80,7 @@ bool AobScanThread(Alice &a) {
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.patch);
+		// AA Script (CE)
 		if (v.info.VA) {
 			ADDINFO(L"// " + v.tag);
 			ADDINFO(DWORDtoString((DWORD)v.info.VA) + L":");
