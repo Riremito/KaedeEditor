@@ -400,9 +400,9 @@ AddrInfoEx Find_DR_Check(Frost &f) {
 	return aix;
 }
 
-AddrInfoEx Find_RemoveMSCRC1_1(Frost &f) {
+AddrInfoEx Find_RemoveMSCRC_Main_RenderFrame(Frost &f) {
 	// Remove MSCRC Main - Hook
-	AddrInfoEx aix = { L"RemoveMSCRC1 (IWzGr2D::RenderFrame)" };
+	AddrInfoEx aix = { L"RemoveMSCRC_Main (IWzGr2D::RenderFrame)" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -427,9 +427,9 @@ AddrInfoEx Find_RemoveMSCRC1_1(Frost &f) {
 	return aix;
 }
 
-AddrInfoEx Find_RemoveMSCRC1_2(Frost &f) {
+AddrInfoEx Find_RemoveMSCRC_Main_Run_LeaveVM(Frost &f) {
 	// Remove MSCRC Main - Leave
-	AddrInfoEx aix = { L"RemoveMSCRC1 (CWvsApp::Run Leave)" };
+	AddrInfoEx aix = { L"RemoveMSCRC_Main (CWvsApp::Run LeaveVM)" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -438,6 +438,77 @@ AddrInfoEx Find_RemoveMSCRC1_2(Frost &f) {
 		mode = L"JMS v186.1";
 		return aix;
 	}
+
+	return aix;
+}
+
+AddrInfoEx Find_RemoveMSCRC_OnEnterField_EnterVM(Frost &f) {
+	AddrInfoEx aix = { L"RemoveMSCRC_OnEnterField (CWvsContext::OnEnterField EnterVM)" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 83 EC 40 53 56 57 89 4D C8 8B 4D C8 E8 ?? ?? ?? ?? E9");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x14);
+		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 4D ?? 8B 4D ?? E8 ?? ?? ?? ?? 6A 28 8B 4D ?? E8 ?? ?? ?? ?? E9");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x3D);
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 6A FF 68 ? ? ? ? ? ? ? ? 64 A1 00 00 00 00 50 81 EC ? ? ? ? ? ? ? ? 53 56 57 A1 ? ? ? ? ? ? ? ? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 8D ? ? ? ? ? ? ? ? C7 45 BC 00 00 00 00 33 C0 89 45 C0 89 45 C4 89 45 C8 89 45 CC 89 45 D0 89 45 D4 C7 45 B0 00 00 00 00 33 C9 89 4D B4 89 4D B8 E8");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x70);
+		mode = L"JMS v334";
+		return aix;
+	}
+
+	/*
+	res = f.AobScan(L"E9 ?? ?? ?? ?? 50 EB 55 2C 8A 4A 9C AF 79 54 A0");
+	if (res.VA) {
+		mode = L"TWMS v192.2";
+		return aix;
+	}
+	*/
+
+	return aix;
+}
+
+AddrInfoEx Find_RemoveMSCRC_OnEnterField_LeaveVM(Frost &f) {
+	AddrInfoEx aix = { L"RemoveMSCRC_OnEnterField (CWvsContext::OnEnterField LeaveVM)" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 74 ?? E8 ?? ?? ?? ?? 89 45 E8 83 7D E8 00 74");
+	if (res.VA) {
+		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"89 ?? 89 ?? 89 ?? 90 E8 ?? ?? ?? ?? 89 45 ?? E8 ?? ?? ?? ?? 85 C0 74");
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"68 FF 00 00 00 6A 00 6A 00 8B 85 ?? ?? ?? ?? 83 C0 68 50 6A 03 FF 15");
+	if (res.VA) {
+		mode = L"JMS v334";
+		return aix;
+	}
+
+	/*
+	res = f.AobScan(L"8B ?? ?? ?? ?? ?? 81 ?? EC 68 00 00 E8 ?? ?? ?? ?? 8B C8 E8 ?? ?? ?? ?? 8B");
+	if (res.VA) {
+		mode = L"TWMS v192.2";
+		return aix;
+	}
+	*/
 
 	return aix;
 }
@@ -518,6 +589,146 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	return aix;
 }
 
+AddrInfoEx Find_Extra_GMCommand(Frost &f) {
+	AddrInfoEx aix = { L"Extra_GMCommand" , L"B8 01 00 00 00 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"8A 80 ?? ?? ?? ?? A8 01 0F 84 ?? ?? ?? ?? 8D 45 ?? 50 68 ?? ?? ?? ?? 8D 45 ?? 50 8B CE E8");
+	if (res.VA) {
+		mode = L"JMS v131.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_MapCommand(Frost &f) {
+	AddrInfoEx aix = { L"Extra_MapCommand" , L"90 90 90 90 90 90 90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"39 BE ?? ?? ?? ?? 75 12 E8 ?? ?? ?? ?? 2B 86 ?? ?? ?? ?? 3D F4 01 00 00 7D 07 33 C0 E9");
+	if (res.VA) {
+		mode = L"JMS v131.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_GMChat(Frost &f) {
+	AddrInfoEx aix = { L"Extra_GMChat" , L"B8 01 00 00 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 74 ?? 6A ?? 8D 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? C7 45 ?? ?? ?? ?? ?? E8");
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 74 ?? 6A ?? 8D 8D 38");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 74 ?? 57 6A ?? 8D 4D ?? E8");
+	if (res.VA) {
+		mode = L"JMS v131.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_GMCommand_Lv1(Frost &f) {
+	AddrInfoEx aix = { L"Extra_GMCommand_Lv1" , L"B8 01 00 00 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 8B 75 ?? A8 01 75 ?? 8B 45 ?? 8B 80 ?? ?? ?? ?? 3B C7 0F 84");
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_GMCommand_Lv2(Frost &f) {
+	AddrInfoEx aix = { L"Extra_GMCommand_Lv2" , L"B8 01 00 00 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 8D 4D ?? 51 8D 55 ?? 52 8D 85 ?? ?? ?? ?? 68");
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_GMCommand_Local(Frost &f) {
+	AddrInfoEx aix = { L"Extra_GMCommand_Local" , L"B8 01 00 00 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? A8 01 75 ?? 83 BB ?? ?? ?? ?? 00 C7 45 ?? 00 00 00 00 74 ?? C7 45 ?? 01 00 00 00 8D 45 ?? 50 8D 8D ?? ?? ?? ?? 68");
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_MapDropLimit(Frost &f) {
+	AddrInfoEx aix = { L"Extra_MapDropLimit" , L"B8 00 00 00 00 90 90 90 90 90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 8B 80 ?? ?? ?? ?? C1 E8 ?? ?? ?? ?? 45 F0 74");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_PointItemDropLimit(Frost &f) {
+	AddrInfoEx aix = { L"Extra_PointItemDropLimit" , L"EB 2D 90 90 90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"8B 35 ?? ?? ?? ?? 8B CF E8 ?? ?? ?? ?? 50 8B CE E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? 8B 45 08 8B 48 18 83 C0 18 0B 48 04 0F 85 ?? ?? ?? ?? 8B CF E8");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_Extra_PointItemMultipleDrop(Frost &f) {
+	AddrInfoEx aix = { L"Extra_PointItemMultipleDrop" , L"B8 00 00 00 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 59 75 ?? 8B 06 8B CE FF 50");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+// Main
+
 #define ADDSCANRESULT(tag) result.push_back(Find_##tag##(f));
 std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	std::vector<AddrInfoEx> result;
@@ -538,12 +749,23 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(EasyMethod_StopKeyCrypt);
 	// Remove Anti Hack
 	ADDSCANRESULT(DR_Check);
-	ADDSCANRESULT(RemoveMSCRC1_1);
-	ADDSCANRESULT(RemoveMSCRC1_2);
+	ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
+	ADDSCANRESULT(RemoveMSCRC_Main_Run_LeaveVM);
+	ADDSCANRESULT(RemoveMSCRC_OnEnterField_EnterVM);
+	ADDSCANRESULT(RemoveMSCRC_OnEnterField_LeaveVM);
 	// Useful Client Edit
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
 	ADDSCANRESULT(Ad);
 	ADDSCANRESULT(MapleNetwork);
+	ADDSCANRESULT(Extra_GMCommand);
+	ADDSCANRESULT(Extra_MapCommand);
+	ADDSCANRESULT(Extra_GMChat);
+	ADDSCANRESULT(Extra_GMCommand_Lv1);
+	ADDSCANRESULT(Extra_GMCommand_Lv2);
+	ADDSCANRESULT(Extra_GMCommand_Local);
+	ADDSCANRESULT(Extra_MapDropLimit);
+	ADDSCANRESULT(Extra_PointItemDropLimit);
+	ADDSCANRESULT(Extra_PointItemMultipleDrop);
 	return result;
 }
