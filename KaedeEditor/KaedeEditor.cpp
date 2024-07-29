@@ -62,28 +62,52 @@ bool AobScanThread(Alice &a) {
 		return false;
 	}
 
-	ADDINFO(L"[Enable]");
+	std::vector<std::wstring> vAAScript;
+	std::vector<std::wstring> vIDCScript;
+	std::vector<std::wstring> vInfo;
+
+	vAAScript.push_back(L"[Enable]");
 	for (auto &v : AobScannerMain(f)) {
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR");
+		std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 		if (v.info.VA) {
 			if (v.patch.length()) {
 				// AA Script (CE)
-				ADDINFO(L"// " + v.tag);
-				ADDINFO(DWORDtoString((DWORD)v.info.VA) + L":");
-				ADDINFO(L"db " + v.patch);
+				vAAScript.push_back(L"// " + v.tag);
+				vAAScript.push_back(wVA + L":");
+				vAAScript.push_back(L"db " + v.patch);
+				vAAScript.push_back(L""); // LF
+				continue;
 			}
 			else {
 				// Info (IDA)
-				ADDINFO(L"// " + v.tag + L" = " + DWORDtoString((DWORD)v.info.VA));
+				if (v.tag.length() && v.tag.at(0) == L'?') {
+					vIDCScript.push_back(L"set_name(0x" + wVA + L", \"" + v.tag + L"\");");
+					continue;
+				}
 			}
-			ADDINFO(L""); // LF
 		}
-		// set_name	(0X406F10,	"?Decode1@CInPacket@@QAEEXZ");
+		vInfo.push_back(wVA + L" = " + v.tag);
 	}
-	ADDINFO(L"[Disable]");
+	vAAScript.push_back(L"[Disable]");
+	ADDINFO(L"// AA Script (CE)");
+	for (auto &v : vAAScript) {
+		ADDINFO(v);
+	}
+	ADDINFO(L"");
+	ADDINFO(L"// IDC Script (IDA)");
+	for (auto &v : vIDCScript) {
+		ADDINFO(v);
+	}
+	ADDINFO(L"");
+	ADDINFO(L"// Info");
+	for (auto &v : vInfo) {
+		ADDINFO(v);
+	}
+	ADDINFO(L"");
 	ADDINFO(L"OK!");
 	a.ChangeState(BUTTON_AOBSCAN, TRUE); // unlock button
 	return true;
