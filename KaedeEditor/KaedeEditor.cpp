@@ -24,18 +24,6 @@ enum ListViewIndex {
 	LVA_PATCH,
 };
 
-typedef struct {
-	bool OK;
-	Alice *a;
-	std::wstring path;
-	ULONG_PTR Addr_Key;
-	ULONG_PTR Addr_Array;
-	int ArraySize;
-	UINT codepage;
-} ThreadArg;
-
-ThreadArg gThreadArg;
-std::vector<std::wstring> dumpdata;
 #define ADDINFO(str) a.AddText(TEXTAREA_INFO, str)
 #define SCANINFO(asr) ADDINFO(L"[" #asr L"]\r\nAddress: " + (f.Isx64() ? QWORDtoString(asr.VA, true) : DWORDtoString((DWORD)asr.VA)) + L"\r\nOffset : " + DWORDtoString((DWORD)asr._RRA))
 #define ADDRTOSTRING(ai) (f.Isx64() ? QWORDtoString(ai.VA, true) : DWORDtoString((DWORD)ai.VA))
@@ -57,7 +45,7 @@ bool AobScanThread(Alice &a) {
 	std::wstring path = a.GetText(EDIT_PATH);
 	ADDINFO(L"File Path = " + path);
 	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
-	dumpdata.clear();
+	a.SetText(TEXTAREA_INFO, L"");
 
 	Frost f(path.c_str());
 
@@ -76,17 +64,24 @@ bool AobScanThread(Alice &a) {
 
 	ADDINFO(L"[Enable]");
 	for (auto &v : AobScannerMain(f)) {
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, DWORDtoString((DWORD)v.info.VA));
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR");
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.patch);
-		// AA Script (CE)
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 		if (v.info.VA) {
-			ADDINFO(L"// " + v.tag);
-			ADDINFO(DWORDtoString((DWORD)v.info.VA) + L":");
-			ADDINFO(L"db " + v.patch);
+			if (v.patch.length()) {
+				// AA Script (CE)
+				ADDINFO(L"// " + v.tag);
+				ADDINFO(DWORDtoString((DWORD)v.info.VA) + L":");
+				ADDINFO(L"db " + v.patch);
+			}
+			else {
+				// Info (IDA)
+				ADDINFO(L"// " + v.tag + L" = " + DWORDtoString((DWORD)v.info.VA));
+			}
 			ADDINFO(L""); // LF
 		}
+		// set_name	(0X406F10,	"?Decode1@CInPacket@@QAEEXZ");
 	}
 	ADDINFO(L"[Disable]");
 	ADDINFO(L"OK!");
@@ -151,7 +146,6 @@ bool OnDropFile(Alice &a, wchar_t *drop) {
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-	gThreadArg.OK = true;
 	Alice a(L"KaedeEditorClass", L"Kaede Editor test", VIEWER_WIDTH, VIEWER_HEIGHT, hInstance);
 	a.SetOnCreate(OnCreate);
 	a.SetOnCommand(OnCommand);

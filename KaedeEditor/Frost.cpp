@@ -335,6 +335,28 @@ AddrInfo Frost::GetAddrInfo(ULONG_PTR uVirtualAddress) {
 	return ai;
 }
 
+AddrInfo Frost::GetRefAddrRelative(ULONG_PTR uVirtualAddress, size_t position) {
+	AddrInfo ai = { 0 };
+
+	ULONG_PTR raw_addr = GetRawAddress(uVirtualAddress);
+	if (!raw_addr) {
+		return ai;
+	}
+
+	ULONG_PTR ref_va = uVirtualAddress + (position + 0x04) + *(signed long int*)(raw_addr + position);
+	ULONG_PTR ref_raw = GetRawAddress(ref_va);
+
+	if (!ref_raw) {
+		return ai;
+	}
+
+	ai.VA = ref_va;
+	ai._RVA = ai.VA - ImageBase;
+	ai.RA = ref_raw;
+	ai._RRA = ai.RA - (ULONG_PTR)input_file_data;
+	return ai;
+}
+
 // private
 bool Frost::Open() {
 	input_file_handle = CreateFileW(input_file_path.c_str(), GENERIC_READ, (FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE), NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);

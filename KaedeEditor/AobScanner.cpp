@@ -44,7 +44,7 @@ AddrInfoEx Find_StringPool(Frost &f) {
 	return aix;
 }
 
-// ===== REMOVE ANTI CHEAT =====
+// ===== REMOVE HACKSHIELD =====
 AddrInfoEx Find_HackShield_Init(Frost &f) {
 	AddrInfoEx aix = { L"HackShield_Init", L"31 C0 C2 04 00" };
 	std::wstring &mode = aix.mode;
@@ -300,6 +300,148 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 
 	return aix;
 }
+
+// ===== REMOVE ANTI CHEAT - EASY METHOD =====
+AddrInfoEx Find_EasyMethod_Init(Frost &f) {
+	AddrInfoEx aix = { L"EasyMethod_Init (CSecurityClient::IsInstantiated)" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 85 C0 74 0A E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 ?? ?? 00 0F");
+	if (res.VA) {
+		res = f.GetRefAddrRelative(res.VA, 0x01);
+		mode = L"TWMS v??? - HackShield ver";
+		return aix;
+	}
+
+	res = f.AobScan(L"83 ?? ?? ?? ?? ?? 00 0F 95 C0 C3 A1 ?? ?? ?? ?? C3 8B 01 8B");
+	if (res.VA) {
+		mode = L"TWMS v??? - XignCode ver broken";
+		return aix;
+	}
+
+	/*
+	res = f.AobScan(L"33 C0 39 ?? ?? ?? ?? ?? 0F 95 C0 C3 CC CC CC CC C7 01 ?? ?? ?? ?? C3");
+	if (res.VA) {
+		mode = L"JMS v334.2";
+		return aix;
+	}
+
+	res = f.AobScan(L"33 C0 39 ?? ?? ?? ?? ?? 0F 95 C0 C3 8B ?? ?? 04 85 C0 74 05 83 ?? 0C EB 02 33 C0");
+	if (res.VA) {
+		mode = L"TWMS v157.2";
+		return aix;
+	}
+
+	res = f.AobScan(L"83 ?? ?? ?? ?? ?? 00 0F 95 C0 C3 A1 ?? ?? ?? ?? C3 8B 01 8B");
+	if (res.VA) {
+		mode = L"TWMS v191";
+		return aix;
+	}
+
+	res = f.AobScan(L"83 ?? ?? ?? ?? ?? 00 0F 95 C0 C3 8B 44 24 04 85 C0 74 05 83 C0 0C EB 02 33 C0");
+	if (res.VA) {
+		mode = L"TWMS v192.2";
+		return aix;
+	}
+	*/
+
+	return aix;
+}
+
+AddrInfoEx Find_EasyMethod_StartKeyCrypt(Frost &f) {
+	AddrInfoEx aix = { L"EasyMethod_StartKeyCrypt", L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? EB 05 E8 ?? ?? ?? ?? 66");
+	if (res.VA) {
+		res = f.GetRefAddrRelative(res.VA, 0x01);
+		mode = L"TWMS v???";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_EasyMethod_StopKeyCrypt(Frost &f) {
+	AddrInfoEx aix = { L"EasyMethod_StopKeyCrypt", L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? EB 05 E8 ?? ?? ?? ?? 66");
+	if (res.VA) {
+		res = f.GetRefAddrRelative(res.VA + 0x07, 0x01);
+		mode = L"TWMS v???";
+		return aix;
+	}
+
+	return aix;
+}
+
+// ===== REMOVE ANTI HACK =====
+AddrInfoEx Find_DR_Check(Frost &f) {
+	AddrInfoEx aix = { L"DR_Check" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 81 EC F0 02 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 6A 00 E9");
+	if (res.VA) {
+		mode = L"JMS v331.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 E9");
+	if (res.VA) {
+		mode = L"MSEA v102";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_RemoveMSCRC1_1(Frost &f) {
+	// Remove MSCRC Main - Hook
+	AddrInfoEx aix = { L"RemoveMSCRC1 (IWzGr2D::RenderFrame)" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"56 57 8B F9 8B 07 8B 48 1C 57 FF D1 8B F0 85 F6 7D 0E 68 ?? ?? ?? ?? 57 56 E8 ?? ?? ?? ?? 8B C6 5F 5E C3");
+	if (res.VA) {
+		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"56 57 8B F9 8B 07 8B 48 1C");
+	if (res.VA) {
+		mode = L"JMS v334";
+		return aix;
+	}
+
+	res = f.AobScan(L"56 8B F1 8B 06 57 56 FF 50 1C");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_RemoveMSCRC1_2(Frost &f) {
+	// Remove MSCRC Main - Leave
+	AddrInfoEx aix = { L"RemoveMSCRC1 (CWvsApp::Run Leave)" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"6A 01 FF 15 ?? ?? ?? ?? 8B ?? 08 83 ?? 00 75");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
 // ===== CLIENT FIX =====
 AddrInfoEx Find_WindowMode(Frost &f) {
 	AddrInfoEx aix = { L"WindowMode", L"00 00 00 00"};
@@ -312,12 +454,33 @@ AddrInfoEx Find_WindowMode(Frost &f) {
 		res = f.GetAddrInfo(res.VA + 0x03);
 		return aix;
 	}
+
 	res = f.AobScan(L"C7 45 DC 10 00 00 00 6A 03 FF 75 ?? 8D 4D ?? E8");
 	if (res.VA) {
 		mode = L"JMS v186.1";
 		res = f.GetAddrInfo(res.VA + 0x03);
 		return aix;
 	}
+	return aix;
+}
+
+AddrInfoEx Find_Launcher(Frost &f) {
+	AddrInfoEx aix = { L"Launcher", L"B8 01 00 00 00 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 83 EC ?? 53 56 57 33 DB 53 FF 15 ?? ?? ?? ?? 8B 7D ?? 89 3D ?? ?? ?? ?? 8B 87");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	res = f.AobScan(L"83 EC ?? 56 57 33 F6 56 FF 15 ?? ?? ?? ?? 8B 7C 24 ?? 89 3D ?? ?? ?? ?? 8B 87 ?? ?? ?? ?? 6A 65 56");
+	if (res.VA) {
+		mode = L"JMS v188.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -360,9 +523,7 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	std::vector<AddrInfoEx> result;
 
 	//result.push_back(Find_StringPool(f));
-	ADDSCANRESULT(WindowMode);
-	ADDSCANRESULT(Ad);
-	ADDSCANRESULT(MapleNetwork);
+	// Remove HackShield by Riremito, written for JMS/EMS and also works for KMS
 	ADDSCANRESULT(HackShield_Init);
 	ADDSCANRESULT(HackShield_EHSvc_Loader_1);
 	ADDSCANRESULT(HackShield_EHSvc_Loader_2);
@@ -371,5 +532,18 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(HackShield_Autoup);
 	ADDSCANRESULT(HackShield_ASPLunchr);
 	ADDSCANRESULT(HackShield_HSUpdate);
+	// Remove HackShield/XignCode/BlackCipher by chuichui, written for TWMS and others
+	ADDSCANRESULT(EasyMethod_Init);
+	ADDSCANRESULT(EasyMethod_StartKeyCrypt);
+	ADDSCANRESULT(EasyMethod_StopKeyCrypt);
+	// Remove Anti Hack
+	ADDSCANRESULT(DR_Check);
+	ADDSCANRESULT(RemoveMSCRC1_1);
+	ADDSCANRESULT(RemoveMSCRC1_2);
+	// Useful Client Edit
+	ADDSCANRESULT(WindowMode);
+	ADDSCANRESULT(Launcher);
+	ADDSCANRESULT(Ad);
+	ADDSCANRESULT(MapleNetwork);
 	return result;
 }

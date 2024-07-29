@@ -42,6 +42,7 @@ public:
 	AddrInfo ScanString(std::string sString);
 	AddrInfo ScanValue(ULONG_PTR uValue);
 	AddrInfo GetAddrInfo(ULONG_PTR uVirtualAddress);
+	AddrInfo GetRefAddrRelative(ULONG_PTR uVirtualAddress, size_t position);
 };
 
 #endif
