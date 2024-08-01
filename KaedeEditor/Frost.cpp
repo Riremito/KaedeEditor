@@ -287,6 +287,11 @@ AddrInfo Frost::ScanString(std::string sString) {
 	memcpy_s(&target[0], target_size, sString.c_str(), target_size);
 
 	for (auto &v : image_section_headers) {
+		// ignore code section
+		if (v.Characteristics & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_CNT_CODE)) {
+			continue;
+		}
+
 		ULONG_PTR uStartAddr = (ULONG_PTR)input_file_data + v.PointerToRawData;
 		ULONG_PTR uEndAddr = uStartAddr + v.SizeOfRawData - target_size;
 
