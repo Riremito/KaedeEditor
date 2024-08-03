@@ -11,5 +11,6 @@ typedef struct {
 } AddrInfoEx;
 
 std::vector<AddrInfoEx> AobScannerMain(Frost &f);
+std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section);
 
 #endif

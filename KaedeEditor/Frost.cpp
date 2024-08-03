@@ -134,7 +134,7 @@ ULONG_PTR Frost::GetRawAddress(ULONG_PTR uVirtualAddress) {
 		return 0;
 	}
 
-	for (size_t i = 0; image_section_headers.size(); i++) {
+	for (size_t i = 0; i < image_section_headers.size(); i++) {
 		ULONG_PTR section_start = ImageBase + image_section_headers[i].VirtualAddress;
 		ULONG_PTR section_end = section_start + image_section_headers[i].Misc.VirtualSize;
 
@@ -151,7 +151,7 @@ ULONG_PTR Frost::GetVirtualAddress(ULONG_PTR uRawAddress) {
 		return 0;
 	}
 
-	for (size_t i = 0; image_section_headers.size(); i++) {
+	for (size_t i = 0; i < image_section_headers.size(); i++) {
 		ULONG_PTR section_start = (ULONG_PTR)input_file_data + image_section_headers[i].PointerToRawData;
 		ULONG_PTR section_end = section_start + image_section_headers[i].SizeOfRawData;
 
@@ -241,6 +241,67 @@ std::vector<AddrInfo> Frost::AobScanFin(std::wstring wAob, bool scan_all_section
 	}
 
 	return asrs;
+}
+
+std::vector<AddrInfo> Frost::AobScanCustomAll(std::wstring wAob, bool (*scan_func)(Frost &, ULONG_PTR)) {
+	std::vector<AddrInfo> asrs;
+	::AobScan aob(wAob);
+	if (!ImageBase) {
+		return asrs;
+	}
+
+	size_t aob_size = aob.size();
+	if (aob_size == 0) {
+		return asrs;
+	}
+
+	if (!image_section_headers.size()) {
+		return asrs;
+	}
+
+	auto &v = image_section_headers[0]; // 1st code section
+	ULONG_PTR uStartAddr = (ULONG_PTR)input_file_data + v.PointerToRawData;
+	ULONG_PTR uEndAddr = uStartAddr + v.SizeOfRawData - aob_size;
+
+	for (ULONG_PTR uAddr = uStartAddr; uAddr < uEndAddr; uAddr++) {
+		if (aob.Compare(uAddr)) {
+			AddrInfo asr = { 0 };
+			ULONG_PTR uVA = GetVirtualAddress(uAddr);
+
+			if (!scan_func(*this, uVA)) {
+				continue;
+			}
+
+			asr.VA = uVA;
+			asr._RVA = uVA - ImageBase;
+			asr.RA = uAddr;
+			asr._RRA = uAddr - (ULONG_PTR)input_file_data;
+			asrs.push_back(asr);
+		}
+	}
+
+	return asrs;
+}
+
+int Frost::GetSectionNumber(ULONG_PTR uVirtualAddress) {
+	if (!ImageBase) {
+		return -1;
+	}
+
+	if (!image_section_headers.size()) {
+		return -1;
+	}
+
+	for (int i = 0; i < image_section_headers.size(); i++) {
+		auto &v = image_section_headers[i];
+		ULONG_PTR uStartAddr = ImageBase + v.VirtualAddress;
+		ULONG_PTR uEndAddr = uStartAddr + v.Misc.VirtualSize;
+		if (uStartAddr <= uVirtualAddress && uVirtualAddress <= uEndAddr) {
+			return i;
+		}
+	}
+
+	return -1;
 }
 
 

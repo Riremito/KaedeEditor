@@ -15,6 +15,9 @@ enum SubControl {
 	LISTVIEW_AOBSCAN_RESULT,
 	EDIT_SELECTED,
 	TEXTAREA_INFO,
+	BUTTON_VM_SCAN,
+	STATIC_VM_SECTION,
+	EDIT_VM_SECTION
 };
 
 enum ListViewIndex {
@@ -41,6 +44,11 @@ bool AccessTest(ULONG_PTR uAddr) {
 	return true;
 }
 
+void SetButtonState(Alice &a, BOOL bEnable) {
+	a.ChangeState(BUTTON_AOBSCAN, bEnable);
+	a.ChangeState(BUTTON_VM_SCAN, bEnable);
+}
+
 bool AobScanThread(Alice &a) {
 	std::wstring path = a.GetText(EDIT_PATH);
 	ADDINFO(L"File Path = " + path);
@@ -52,13 +60,13 @@ bool AobScanThread(Alice &a) {
 	ADDINFO(L"Loading...");
 	if (!f.Parse()) {
 		ADDINFO(L"Error! unable to open exe file.");
-		a.ChangeState(BUTTON_AOBSCAN, TRUE);
+		SetButtonState(a, TRUE);
 		return false;
 	}
 
 	if (f.Isx64()) {
 		ADDINFO(L"Error! x64 is not supported now.");
-		a.ChangeState(BUTTON_AOBSCAN, TRUE);
+		SetButtonState(a, TRUE);
 		return false;
 	}
 
@@ -109,14 +117,58 @@ bool AobScanThread(Alice &a) {
 	}
 	ADDINFO(L"");
 	ADDINFO(L"OK!");
-	a.ChangeState(BUTTON_AOBSCAN, TRUE); // unlock button
+	SetButtonState(a, TRUE); // unlock button
+	return true;
+}
+
+bool VMScanThread(Alice &a) {
+	std::wstring path = a.GetText(EDIT_PATH);
+	ADDINFO(L"File Path = " + path);
+	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
+	a.SetText(TEXTAREA_INFO, L"");
+
+	Frost f(path.c_str());
+
+	ADDINFO(L"Loading...");
+	if (!f.Parse()) {
+		ADDINFO(L"Error! unable to open exe file.");
+		SetButtonState(a, TRUE);
+		return false;
+	}
+
+	if (f.Isx64()) {
+		ADDINFO(L"Error! x64 is not supported now.");
+		SetButtonState(a, TRUE);
+		return false;
+	}
+
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str());
+	for (auto &v : VMScanner(f, vm_section)) {
+		std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
+		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+	}
+
+	ADDINFO(L"OK!");
+	SetButtonState(a, TRUE); // unlock button
 	return true;
 }
 
 // main thread
 bool TryAobScan(Alice &a) {
-	a.ChangeState(BUTTON_AOBSCAN, FALSE); // lock button
+	SetButtonState(a, FALSE); // lock button
 	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)AobScanThread, (LPVOID)&a, NULL, NULL);
+	if (hThread) {
+		CloseHandle(hThread);
+	}
+	return true;
+}
+
+bool TryVMScan(Alice &a) {
+	SetButtonState(a, FALSE);
+	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)VMScanThread, (LPVOID)&a, NULL, NULL);
 	if (hThread) {
 		CloseHandle(hThread);
 	}
@@ -136,6 +188,9 @@ bool OnCreate(Alice &a) {
 	a.EditBox(EDIT_SELECTED, 3, 340, L"", (VIEWER_WIDTH - 6));
 	a.TextArea(TEXTAREA_INFO, 3, 360, (VIEWER_WIDTH - 6), 200);
 	a.ReadOnly(TEXTAREA_INFO);
+	a.Button(BUTTON_VM_SCAN, L"VM Scan", 650, 570, 100);
+	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", 500, 570);
+	a.EditBox(EDIT_VM_SECTION, 580, 570, L"3", 60);
 	return true;
 }
 
@@ -143,6 +198,10 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 	switch (nIDDlgItem) {
 	case BUTTON_AOBSCAN: {
 		TryAobScan(a);
+		return true;
+	}
+	case BUTTON_VM_SCAN: {
+		TryVMScan(a);
 		return true;
 	}
 	default: {
