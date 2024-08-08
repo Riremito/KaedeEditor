@@ -404,22 +404,43 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 
 	return aix;
 }
-// ===== REMOVE HACKSHIELD CMS VS2008 =====
-AddrInfoEx Find_HackShield_CMS(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_CMS" , L"31 C9 90" };
+// ===== REMOVE HACKSHIELD =====
+AddrInfoEx Find_HackShield_NullPtr(Frost &f) {
+	AddrInfoEx aix = { L"HackShield_NullPtr" , L"31 C9 90" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"8D 48 FC 89 0D ?? ?? ?? ?? EB 06 89 2D ?? ?? ?? ?? C7");
+	res = f.AobScan(L"8D 48 FC 89 0D ?? ?? ?? ?? EB 06 89 1D ?? ?? ?? ?? C7 06 ?? ?? ?? ?? 89 5C 24 20 89 18 89 5E 08 89 5E 0C 6A 0C");
 	if (res.VA) {
-		mode = L"CMS v86.1";
+		mode = L"JMS v308.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"8D 48 FC 89 0D ?? ?? ?? ?? EB 06 89 2D ?? ?? ?? ?? C7 06 ?? ?? ?? ?? 89 6C 24 20 89 28 6A 0C");
+	if (res.VA) {
+		mode = L"JMS v188.0";
 		return aix;
 	}
 
 	res = f.AobScan(L"1B C9 23 CA 57 89 75 F0 89 0D ?? ?? ?? ?? 33 FF 89 7D FC 89 38 57 8D 4E 0C C6 45 FC 01 89 7E 08 E8");
 	if (res.VA) {
 		aix.patch = L"31 C9";
-		mode = L"CMS v85.1";
+		mode = L"JMS v180.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+// for vmprotect era
+AddrInfoEx Find_HackShield_Packet(Frost &f) {
+	AddrInfoEx aix = { L"HackShield_Packet" , L"jmp funcion_restore_code_section" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 6A ?? 8D 4C 24 ?? C6 86 ?? ?? ?? ?? 01 E8 ?? ?? ?? ?? 6A 01");
+	if (res.VA) {
+		mode = L"JMS v322.0";
 		return aix;
 	}
 
@@ -1390,28 +1411,35 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 #define ADDSCANRESULT(tag) result.push_back(Find_##tag##(f));
 std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	std::vector<AddrInfoEx> result;
-
-	//result.push_back(Find_StringPool(f));
+	bool vmprotect = false;
+	// String
+	Find_String_IPs(f, result);
 	// Remove Checks
 	ADDSCANRESULT(Check_Language);
 	ADDSCANRESULT(Check_Mutex);
-	// Remove HackShield by Riremito, written for JMS/EMS and also works for KMS
-	ADDSCANRESULT(HackShield_Init);
-	ADDSCANRESULT(HackShield_EHSvc_Loader_1);
-	ADDSCANRESULT(HackShield_EHSvc_Loader_2);
-	ADDSCANRESULT(HackShield_HeartBeat);
-	ADDSCANRESULT(HackShield_MKD25tray);
-	ADDSCANRESULT(HackShield_Autoup);
-	ADDSCANRESULT(HackShield_ASPLunchr);
-	ADDSCANRESULT(HackShield_HSUpdate);
-	// Remove HackShield for CMS by Riremito
-	ADDSCANRESULT(HackShield_CMS);
+	// Remove HackShield 2024 ver by Riremito
+	ADDSCANRESULT(HackShield_NullPtr);
+	ADDSCANRESULT(HackShield_Packet);
+	if (result.back().info.VA) {
+		vmprotect = true;
+	}
+	if (!result.back().info.VA) {
+		// Remove HackShield by Riremito, written for JMS/EMS and also works for KMS
+		ADDSCANRESULT(HackShield_Init);
+		ADDSCANRESULT(HackShield_EHSvc_Loader_1);
+		ADDSCANRESULT(HackShield_EHSvc_Loader_2);
+		ADDSCANRESULT(HackShield_HeartBeat);
+		ADDSCANRESULT(HackShield_MKD25tray);
+		ADDSCANRESULT(HackShield_Autoup);
+		ADDSCANRESULT(HackShield_ASPLunchr);
+		ADDSCANRESULT(HackShield_HSUpdate);
+	}
 	// Remove HackShield/XignCode/BlackCipher by chuichui, written for TWMS and others
 	//ADDSCANRESULT(EasyMethod_Init);
 	//ADDSCANRESULT(EasyMethod_StartKeyCrypt);
 	//ADDSCANRESULT(EasyMethod_StopKeyCrypt);
 	// Remove Anti Hack
-	ADDSCANRESULT(DR_Check);
+	//ADDSCANRESULT(DR_Check);
 	//ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
 	//ADDSCANRESULT(RemoveMSCRC_Main_Run_LeaveVM);
 	//ADDSCANRESULT(RemoveMSCRC_OnEnterField_EnterVM);
@@ -1419,6 +1447,12 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	// Useful Client Edit
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
+	if (vmprotect) {
+		if (result.back().info.VA) {
+			result.back().mode = L"JMS v322.0";
+			result.back().patch = L"jmp funcion_restore_pe_header";
+		}
+	}
 	ADDSCANRESULT(Ad);
 	ADDSCANRESULT(MapleNetwork);
 	ADDSCANRESULT(Extra_GMCommand);
@@ -1445,8 +1479,6 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(Addr_Decode4);
 	ADDSCANRESULT(Addr_DecodeStr);
 	ADDSCANRESULT(Addr_DecodeBuffer);
-	// String
-	Find_String_IPs(f, result);
 	return result;
 }
 

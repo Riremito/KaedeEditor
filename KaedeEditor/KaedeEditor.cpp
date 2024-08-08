@@ -86,7 +86,12 @@ bool AobScanThread(Alice &a) {
 				// AA Script (CE)
 				vAAScript.push_back(L"// " + v.tag);
 				vAAScript.push_back(wVA + L":");
-				vAAScript.push_back(L"db " + v.patch);
+				if (memcmp(v.patch.c_str(), L"jmp ", 8) == 0) {
+					vAAScript.push_back(v.patch);
+				}
+				else {
+					vAAScript.push_back(L"db " + v.patch);
+				}
 				vAAScript.push_back(L""); // LF
 				continue;
 			}
