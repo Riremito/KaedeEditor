@@ -1,48 +1,5 @@
 #include"AobScanner.h"
 
-/*
-AddrInfoEx Find_Test(Frost &f) {
-	AddrInfoEx aix = { L"Tag"};
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	res = f.AobScan(L"");
-	if (res.VA) {
-		mode = L"JMS v186.1";
-		return aix;
-	}
-
-	return aix;
-}
-*/
-
-AddrInfoEx Find_StringPool(Frost &f) {
-	AddrInfoEx aix = {L"StringPoolArray", L"Patch", L"Mode"};
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v186.1
-	if (res.VA) {
-		mode = L"JMS v186.1";
-		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x02));
-		return aix;
-	}
-
-	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v194.0
-	if (res.VA) {
-		mode = L"JMS v194.0";
-		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x03));
-		return aix;
-	}
-
-	res = f.AobScan(L"0F 85 ?? ?? ?? ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // CMS v86.1
-	if (res.VA) {
-		mode = L"CMS v86.1";
-		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x06 + 0x03));
-		return aix;
-	}
-	return aix;
-}
 // ===== REMOVE CHECKS =====
 AddrInfoEx Find_Check_Language(Frost &f) {
 	AddrInfoEx aix = { L"Check_Language", L"EB" };
@@ -712,7 +669,7 @@ AddrInfoEx Find_Ad(Frost &f) {
 		return aix;
 	}
 
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 64 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 78 64 A3 00 00 00 00 33 FF 57 FF 15");
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 64 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 78 64 A3 00 00 00 00 33 ?? 5? FF 15");
 	if (res.VA) {
 		mode = L"JMS v188.0";
 		return aix;
@@ -1172,6 +1129,50 @@ AddrInfoEx Find_Addr_DecodeBuffer(Frost &f) {
 
 	return aix;
 }
+
+// Addr just ref
+AddrInfoEx Find_Addr_StringPool__ms_aString(Frost &f) {
+	AddrInfoEx aix = { L"?ms_aString@StringPool@@0PAPBDA"};
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v186.1
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x02));
+		return aix;
+	}
+
+	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v194.0
+	if (res.VA) {
+		mode = L"JMS v194.0";
+		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x03));
+		return aix;
+	}
+
+	res = f.AobScan(L"0F 85 ?? ?? ?? ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // CMS v86.1
+	if (res.VA) {
+		mode = L"CMS v86.1";
+		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x06 + 0x03));
+		return aix;
+	}
+	return aix;
+}
+
+AddrInfoEx Find_Addr_IWzResMan__GetObjectA(Frost &f) {
+	AddrInfoEx aix = { L"?GetObjectA@IWzResMan@@QAE?AVZtl_variant_t@@VZtl_bstr_t@@ABV2@1@Z" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 C7 44 24 ?? 00 00 00 00 8D 44 24 ?? 50 C7 44 24 ?? 00 00 00 00 FF 15");
+	if (res.VA) {
+		mode = L"JMS v308.0";
+		return aix;
+	}
+
+	return aix;
+}
+
 // ===== String =====
 std::wstring StrPatchPadding(AddrInfo &res, std::wstring str) {
 	std::wstring patch = L"\'" + str + L"\' 00";
@@ -1423,7 +1424,7 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	if (result.back().info.VA) {
 		vmprotect = true;
 	}
-	if (!result.back().info.VA) {
+	//if (!result.back().info.VA) {
 		// Remove HackShield by Riremito, written for JMS/EMS and also works for KMS
 		ADDSCANRESULT(HackShield_Init);
 		ADDSCANRESULT(HackShield_EHSvc_Loader_1);
@@ -1433,17 +1434,17 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 		ADDSCANRESULT(HackShield_Autoup);
 		ADDSCANRESULT(HackShield_ASPLunchr);
 		ADDSCANRESULT(HackShield_HSUpdate);
-	}
+	//}
 	// Remove HackShield/XignCode/BlackCipher by chuichui, written for TWMS and others
-	//ADDSCANRESULT(EasyMethod_Init);
-	//ADDSCANRESULT(EasyMethod_StartKeyCrypt);
-	//ADDSCANRESULT(EasyMethod_StopKeyCrypt);
+	ADDSCANRESULT(EasyMethod_Init);
+	ADDSCANRESULT(EasyMethod_StartKeyCrypt);
+	ADDSCANRESULT(EasyMethod_StopKeyCrypt);
 	// Remove Anti Hack
-	//ADDSCANRESULT(DR_Check);
-	//ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
-	//ADDSCANRESULT(RemoveMSCRC_Main_Run_LeaveVM);
-	//ADDSCANRESULT(RemoveMSCRC_OnEnterField_EnterVM);
-	//ADDSCANRESULT(RemoveMSCRC_OnEnterField_LeaveVM);
+	ADDSCANRESULT(DR_Check);
+	ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
+	ADDSCANRESULT(RemoveMSCRC_Main_Run_LeaveVM);
+	ADDSCANRESULT(RemoveMSCRC_OnEnterField_EnterVM);
+	ADDSCANRESULT(RemoveMSCRC_OnEnterField_LeaveVM);
 	// Useful Client Edit
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
@@ -1479,6 +1480,9 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(Addr_Decode4);
 	ADDSCANRESULT(Addr_DecodeStr);
 	ADDSCANRESULT(Addr_DecodeBuffer);
+	// Addr test
+	ADDSCANRESULT(Addr_StringPool__ms_aString);
+	ADDSCANRESULT(Addr_IWzResMan__GetObjectA);
 	return result;
 }
 
