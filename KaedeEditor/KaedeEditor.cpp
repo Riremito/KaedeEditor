@@ -64,19 +64,13 @@ bool AobScanThread(Alice &a) {
 		return false;
 	}
 
-	if (f.Isx64()) {
-		ADDINFO(L"Error! x64 is not supported now.");
-		SetButtonState(a, TRUE);
-		return false;
-	}
-
 	std::vector<std::wstring> vAAScript;
 	std::vector<std::wstring> vIDCScript;
 	std::vector<std::wstring> vInfo;
 
 	vAAScript.push_back(L"[Enable]");
-	for (auto &v : AobScannerMain(f)) {
-		std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
+	for (auto &v : f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f)) {
+		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
@@ -141,15 +135,9 @@ bool VMScanThread(Alice &a) {
 		return false;
 	}
 
-	if (f.Isx64()) {
-		ADDINFO(L"Error! x64 is not supported now.");
-		SetButtonState(a, TRUE);
-		return false;
-	}
-
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str());
-	for (auto &v : VMScanner(f, vm_section)) {
-		std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
+	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
+		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);

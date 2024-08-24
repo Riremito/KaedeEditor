@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="AobScan.cpp" />
     <ClCompile Include="AobScanner.cpp" />
+    <ClCompile Include="AobScanner64.cpp" />
     <ClCompile Include="Formatter.cpp" />
     <ClCompile Include="Frost.cpp" />
     <ClCompile Include="KaedeEditor.cpp" />

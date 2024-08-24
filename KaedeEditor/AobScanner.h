@@ -12,5 +12,7 @@ typedef struct {
 
 std::vector<AddrInfoEx> AobScannerMain(Frost &f);
 std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section);
+std::vector<AddrInfoEx> AobScannerMain64(Frost &f);
+std::vector<AddrInfoEx> VMScanner64(Frost &f, int vm_section64);
 
 #endif
