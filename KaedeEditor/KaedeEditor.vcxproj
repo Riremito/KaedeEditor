@@ -164,6 +164,7 @@
     <ClInclude Include="AobScanner.h" />
     <ClInclude Include="Formatter.h" />
     <ClInclude Include="Frost.h" />
+    <ClInclude Include="KaedeEditor.h" />
     <ClInclude Include="Simple.h" />
     <ClInclude Include="SimpleGUI.h" />
     <ClInclude Include="StringPool.h" />

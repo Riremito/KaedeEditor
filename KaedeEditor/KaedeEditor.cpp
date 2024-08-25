@@ -1,68 +1,63 @@
-#include"Simple.h"
-#include"Frost.h"
-#include"StringPool.h"
-#include"Formatter.h"
-#include"AobScanner.h"
+#include"KaedeEditor.h"
 
-#define VIEWER_WIDTH 800
-#define VIEWER_HEIGHT 600
+Frost *frost_dropped = NULL;
+int frost_ref_count = 0;
 
-enum SubControl {
-	RESERVED,
-	STATIC_PATH,
-	EDIT_PATH,
-	BUTTON_AOBSCAN,
-	LISTVIEW_AOBSCAN_RESULT,
-	EDIT_SELECTED,
-	TEXTAREA_INFO,
-	BUTTON_VM_SCAN,
-	STATIC_VM_SECTION,
-	EDIT_VM_SECTION
-};
-
-enum ListViewIndex {
-	LVA_VA,
-	LVA_NAME_TAG,
-	LVA_MODE,
-	LVA_PATCH,
-};
-
-#define ADDINFO(str) a.AddText(TEXTAREA_INFO, str)
-#define SCANINFO(asr) ADDINFO(L"[" #asr L"]\r\nAddress: " + (f.Isx64() ? QWORDtoString(asr.VA, true) : DWORDtoString((DWORD)asr.VA)) + L"\r\nOffset : " + DWORDtoString((DWORD)asr._RRA))
-#define ADDRTOSTRING(ai) (f.Isx64() ? QWORDtoString(ai.VA, true) : DWORDtoString((DWORD)ai.VA))
-
-bool AccessTest(ULONG_PTR uAddr) {
-	__try {
-		if (IsBadReadPtr((void *)uAddr, 2)) {
-			return false;
-		}
+// close previous opened file
+bool Dropped_Close() {
+	if (frost_ref_count != 0) {
+		return false;
 	}
-	__except (EXCEPTION_EXECUTE_HANDLER) {
+
+	if (frost_dropped) {
+		delete frost_dropped;
+		frost_dropped = NULL;
+	}
+
+	return true;
+}
+
+// open new file
+bool Dropped_Open(const WCHAR *wPath) {
+	if (frost_dropped) {
+		return false;
+	}
+
+	frost_dropped = new Frost(wPath);
+	if (!frost_dropped) {
 		return false;
 	}
 
 	return true;
 }
 
-void SetButtonState(Alice &a, BOOL bEnable) {
-	a.ChangeState(BUTTON_AOBSCAN, bEnable);
-	a.ChangeState(BUTTON_VM_SCAN, bEnable);
+// parse PE file
+bool Dropped_Parse() {
+	if (!frost_dropped) {
+		return false;
+	}
+
+	if (!frost_dropped->Parse()) {
+		Dropped_Close();
+		return false;
+	}
+
+	return true;
+}
+
+// thread task checks
+void UnlockButton(Alice &a, int nIDDlgItem) {
+	frost_ref_count--;
+	a.ChangeState(nIDDlgItem, TRUE);
 }
 
 bool AobScanThread(Alice &a) {
-	std::wstring path = a.GetText(EDIT_PATH);
-	ADDINFO(L"File Path = " + path);
 	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
 	a.SetText(TEXTAREA_INFO, L"");
 
-	Frost f(path.c_str());
+	Frost &f = *frost_dropped;
 
-	ADDINFO(L"Loading...");
-	if (!f.Parse()) {
-		ADDINFO(L"Error! unable to open exe file.");
-		SetButtonState(a, TRUE);
-		return false;
-	}
+	INFO_ADD(L"Loading...");
 
 	std::vector<std::wstring> vAAScript;
 	std::vector<std::wstring> vIDCScript;
@@ -100,40 +95,34 @@ bool AobScanThread(Alice &a) {
 		vInfo.push_back(wVA + L" = " + v.tag);
 	}
 	vAAScript.push_back(L"[Disable]");
-	ADDINFO(L"// AA Script (CE)");
+	INFO_ADD(L"// AA Script (CE)");
 	for (auto &v : vAAScript) {
-		ADDINFO(v);
+		INFO_ADD(v);
 	}
-	ADDINFO(L"");
-	ADDINFO(L"// IDC Script (IDA)");
+	INFO_ADD(L"");
+	INFO_ADD(L"// IDC Script (IDA)");
 	for (auto &v : vIDCScript) {
-		ADDINFO(v);
+		INFO_ADD(v);
 	}
-	ADDINFO(L"");
-	ADDINFO(L"// Info");
+	INFO_ADD(L"");
+	INFO_ADD(L"// Info");
 	for (auto &v : vInfo) {
-		ADDINFO(v);
+		INFO_ADD(v);
 	}
-	ADDINFO(L"");
-	ADDINFO(L"OK!");
-	SetButtonState(a, TRUE); // unlock button
+	INFO_ADD(L"");
+	INFO_ADD(L"OK!");
+
+	UnlockButton(a, BUTTON_AOBSCAN);
 	return true;
 }
 
 bool VMScanThread(Alice &a) {
-	std::wstring path = a.GetText(EDIT_PATH);
-	ADDINFO(L"File Path = " + path);
 	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
 	a.SetText(TEXTAREA_INFO, L"");
 
-	Frost f(path.c_str());
+	Frost &f = *frost_dropped;
 
-	ADDINFO(L"Loading...");
-	if (!f.Parse()) {
-		ADDINFO(L"Error! unable to open exe file.");
-		SetButtonState(a, TRUE);
-		return false;
-	}
+	INFO_ADD(L"Loading...");
 
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
 	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
@@ -144,34 +133,48 @@ bool VMScanThread(Alice &a) {
 		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 	}
 
-	ADDINFO(L"OK!");
-	SetButtonState(a, TRUE); // unlock button
+	INFO_ADD(L"OK!");
+	UnlockButton(a, BUTTON_VM_SCAN);
 	return true;
 }
 
-// main thread
-bool TryAobScan(Alice &a) {
-	SetButtonState(a, FALSE); // lock button
-	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)AobScanThread, (LPVOID)&a, NULL, NULL);
+
+// thread
+bool RunScanner(Alice &a, int nIDDlgItem) {
+	LPTHREAD_START_ROUTINE thread_func = NULL;
+	switch (nIDDlgItem) {
+	case BUTTON_AOBSCAN: {
+		thread_func = (decltype(thread_func))AobScanThread;
+		break;
+	}
+	case BUTTON_VM_SCAN: {
+		thread_func = (decltype(thread_func))VMScanThread;
+		break;
+	}
+	default: {
+		break;
+	}
+	}
+
+	if (!thread_func) {
+		return false;
+	}
+
+	// scan thread
+	frost_ref_count++;
+	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)thread_func, (LPVOID)&a, NULL, NULL);
 	if (hThread) {
 		CloseHandle(hThread);
 	}
 	return true;
 }
 
-bool TryVMScan(Alice &a) {
-	SetButtonState(a, FALSE);
-	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)VMScanThread, (LPVOID)&a, NULL, NULL);
-	if (hThread) {
-		CloseHandle(hThread);
-	}
-	return true;
-}
 
-// gui part
+// Main Window
 bool OnCreate(Alice &a) {
-	a.StaticText(STATIC_PATH, L"File Path :", 3, 3);
+	a.StaticText(STATIC_PATH, L"File Path :", 10, 3);
 	a.EditBox(EDIT_PATH, 80, 3, L"Please Drop File", 500);
+	a.ReadOnly(EDIT_PATH);
 	a.Button(BUTTON_AOBSCAN, L"AobScan", 590, 3, 100);
 	a.ListView(LISTVIEW_AOBSCAN_RESULT, 3, 30, (VIEWER_WIDTH - 6), 300);
 	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"VA", 120);
@@ -187,14 +190,18 @@ bool OnCreate(Alice &a) {
 	return true;
 }
 
+// Button
 bool OnCommand(Alice &a, int nIDDlgItem) {
 	switch (nIDDlgItem) {
-	case BUTTON_AOBSCAN: {
-		TryAobScan(a);
-		return true;
-	}
-	case BUTTON_VM_SCAN: {
-		TryVMScan(a);
+	case BUTTON_AOBSCAN:
+	case BUTTON_VM_SCAN:
+	{
+		// file is not opened.
+		if (!frost_dropped) {
+			return false;
+		}
+		a.ChangeState(nIDDlgItem, FALSE);
+		RunScanner(a, nIDDlgItem);
 		return true;
 	}
 	default: {
@@ -204,6 +211,7 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 	return true;
 }
 
+// ListView Select -> Copy selected data
 bool OnNotify(Alice &a, int nIDDlgItem) {
 	if (nIDDlgItem == LISTVIEW_AOBSCAN_RESULT) {
 		std::wstring text_va;
@@ -216,18 +224,37 @@ bool OnNotify(Alice &a, int nIDDlgItem) {
 	return true;
 }
 
+// Drop -> Open
 bool OnDropFile(Alice &a, wchar_t *drop) {
+	INFO_CLEAR();
+	if (!Dropped_Close()) {
+		INFO_ADD(L"Error! Previous task is still running.");
+		return false;
+	}
+
 	a.SetText(EDIT_PATH, drop);
+	INFO_ADD(drop);
+	Dropped_Open(drop);
+
+	if (!Dropped_Parse()) {
+		INFO_ADD(L"Error! Unable to open PE file.");
+		return false;
+	}
+
+	Frost &f = *frost_dropped;
+	f.Isx64() ? a.SetText(EDIT_VM_SECTION, L"11") : a.SetText(EDIT_VM_SECTION, L"3");
 	return true;
 }
 
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-	Alice a(L"KaedeEditorClass", L"Kaede Editor test", VIEWER_WIDTH, VIEWER_HEIGHT, hInstance);
+	Alice a(L"KaedeEditorClass", L"Kaede Editor", VIEWER_WIDTH, VIEWER_HEIGHT, hInstance);
 	a.SetOnCreate(OnCreate);
 	a.SetOnCommand(OnCommand);
 	a.SetOnNotify(OnNotify);
 	a.SetOnDropFile(OnDropFile);
 	a.Run();
 	a.Wait();
+	Dropped_Close();
 	return 0;
 }
