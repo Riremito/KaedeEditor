@@ -52,10 +52,9 @@ void UnlockButton(Alice &a, int nIDDlgItem) {
 }
 
 bool AobScanThread(Alice &a) {
-	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
 	Frost &f = *frost_dropped;
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	a.SetText(TEXTAREA_INFO, L"");
 
 	INFO_ADD(L"Loading...");
 
@@ -66,10 +65,10 @@ bool AobScanThread(Alice &a) {
 	vAAScript.push_back(L"[Enable]");
 	for (auto &v : f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f)) {
 		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 		if (v.info.VA) {
 			if (v.patch.length()) {
 				// AA Script (CE)
@@ -112,25 +111,41 @@ bool AobScanThread(Alice &a) {
 	INFO_ADD(L"");
 	INFO_ADD(L"OK!");
 
-	UnlockButton(a, BUTTON_AOBSCAN);
+	UnlockButton(a, BUTTON_AOB_SCAN);
+	return true;
+}
+
+bool AobScanTestThread(Alice &a) {
+	Frost &f = *frost_dropped;
+	a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"Scanning...");
+
+	ULONG_PTR res_addr = f.AobScan(a.GetText(EDIT_AOB_SCAN_TEST)).VA;
+	if (res_addr) {
+		a.SetText(EDIT_AOB_SCAN_TEST_RESULT, f.Isx64() ? QWORDtoString(res_addr) : DWORDtoString((DWORD)res_addr));
+	}
+	else {
+		a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"ERROR");
+	}
+
+	UnlockButton(a, BUTTON_AOB_SCAN_TEST);
 	return true;
 }
 
 bool VMScanThread(Alice &a) {
-	a.ListView_Clear(LISTVIEW_AOBSCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
 	Frost &f = *frost_dropped;
+
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	a.SetText(TEXTAREA_INFO, L"");
 
 	INFO_ADD(L"Loading...");
 
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
 	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
 		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_VA, wVA);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, v.tag);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_MODE, v.mode);
-		a.ListView_AddItem(LISTVIEW_AOBSCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
+		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 	}
 
 	INFO_ADD(L"OK!");
@@ -143,8 +158,12 @@ bool VMScanThread(Alice &a) {
 bool RunScanner(Alice &a, int nIDDlgItem) {
 	LPTHREAD_START_ROUTINE thread_func = NULL;
 	switch (nIDDlgItem) {
-	case BUTTON_AOBSCAN: {
+	case BUTTON_AOB_SCAN: {
 		thread_func = (decltype(thread_func))AobScanThread;
+		break;
+	}
+	case BUTTON_AOB_SCAN_TEST: {
+		thread_func = (decltype(thread_func))AobScanTestThread;
 		break;
 	}
 	case BUTTON_VM_SCAN: {
@@ -171,29 +190,40 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 
 
 // Main Window
+#define AR_HEIGHT 240
 bool OnCreate(Alice &a) {
-	a.StaticText(STATIC_PATH, L"File Path :", 10, 3);
-	a.EditBox(EDIT_PATH, 80, 3, L"Please Drop File", 500);
-	a.ReadOnly(EDIT_PATH);
-	a.Button(BUTTON_AOBSCAN, L"AobScan", 590, 3, 100);
-	a.ListView(LISTVIEW_AOBSCAN_RESULT, 3, 30, (VIEWER_WIDTH - 6), 300);
-	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"VA", 120);
-	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"NameTag", 300);
-	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"Mode", 100);
-	a.ListView_AddHeader(LISTVIEW_AOBSCAN_RESULT, L"Patch", 200);
-	a.EditBox(EDIT_SELECTED, 3, 340, L"", (VIEWER_WIDTH - 6));
+	// Aob Scanner
+	a.ListView(LISTVIEW_AOB_SCAN_RESULT, 3, 3, (VIEWER_WIDTH - 6), AR_HEIGHT);
+	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"VA", 120);
+	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"NameTag", 300);
+	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Mode", 100);
+	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Patch", 200);
+	a.EditBox(EDIT_AOB_SCAN_RESULT_SELECTED, 3, (AR_HEIGHT + 10), L"", (VIEWER_WIDTH - 120));
+	a.Button(BUTTON_AOB_SCAN, L"AobScan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 10), 100);
+	// Scan Test
+	a.EditBox(EDIT_AOB_SCAN_TEST, 3, (AR_HEIGHT + 30), L"", (VIEWER_WIDTH - 340));
+	a.EditBox(EDIT_AOB_SCAN_TEST_RESULT, (VIEWER_WIDTH - 330), (AR_HEIGHT + 30), L"", 100);
+	a.ReadOnly(EDIT_AOB_SCAN_TEST_RESULT);
+	a.Button(BUTTON_AOB_SCAN_TEST, L"ScanTest", (VIEWER_WIDTH - 220), (AR_HEIGHT + 30), 100);
+	//a.Button(BUTTON_AOB_SCAN_TEST_FULL, L"ScanTest(Full)", (VIEWER_WIDTH - 110), (AR_HEIGHT + 30), 100);
+	// VM Enter Scanner
+	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 330), (AR_HEIGHT + 50));
+	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 220), (AR_HEIGHT + 50), L"3", 100);
+	a.Button(BUTTON_VM_SCAN, L"VM Enter Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 50), 100);
+	// Info
 	a.TextArea(TEXTAREA_INFO, 3, 360, (VIEWER_WIDTH - 6), 200);
 	a.ReadOnly(TEXTAREA_INFO);
-	a.Button(BUTTON_VM_SCAN, L"VM Scan", 650, 570, 100);
-	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", 500, 570);
-	a.EditBox(EDIT_VM_SECTION, 580, 570, L"3", 60);
+	a.StaticText(STATIC_PATH, L"File Path :", 10, (VIEWER_HEIGHT - 30));
+	a.EditBox(EDIT_PATH, 80, (VIEWER_HEIGHT - 30), L"Please Drop File", (VIEWER_WIDTH - 90));
+	a.ReadOnly(EDIT_PATH);
 	return true;
 }
 
 // Button
 bool OnCommand(Alice &a, int nIDDlgItem) {
 	switch (nIDDlgItem) {
-	case BUTTON_AOBSCAN:
+	case BUTTON_AOB_SCAN:
+	case BUTTON_AOB_SCAN_TEST:
 	case BUTTON_VM_SCAN:
 	{
 		// file is not opened.
@@ -213,12 +243,12 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 
 // ListView Select -> Copy selected data
 bool OnNotify(Alice &a, int nIDDlgItem) {
-	if (nIDDlgItem == LISTVIEW_AOBSCAN_RESULT) {
+	if (nIDDlgItem == LISTVIEW_AOB_SCAN_RESULT) {
 		std::wstring text_va;
 		std::wstring text_name_tag;
-		a.ListView_Copy(LISTVIEW_AOBSCAN_RESULT, LVA_VA, text_va, false);
-		a.ListView_Copy(LISTVIEW_AOBSCAN_RESULT, LVA_NAME_TAG, text_name_tag, true, 4096);
-		a.SetText(EDIT_SELECTED, text_va + L" | " + text_name_tag);
+		a.ListView_Copy(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, text_va, false);
+		a.ListView_Copy(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, text_name_tag, true, 4096);
+		a.SetText(EDIT_AOB_SCAN_RESULT_SELECTED, text_va + L" | " + text_name_tag);
 		return true;
 	}
 	return true;
