@@ -158,7 +158,19 @@ bool StackClearScanThread(Alice &a) {
 	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
 	a.SetText(TEXTAREA_INFO, L"");
 
-	if (!f.Isx64()) {
+	bool check = true;
+
+	if (f.Isx64()) {
+		check = false;
+		INFO_ADD(L"x64 is not supported.");
+	}
+
+	if (!GetDEVM()) {
+		check = false;
+		INFO_ADD(L"not unvirtualized.");
+	}
+
+	if (check) {
 		INFO_ADD(L"Loading...");
 		std::vector<std::wstring> vAAScript;
 		for (auto &v : StackClearScanner(f)) {
@@ -183,9 +195,6 @@ bool StackClearScanThread(Alice &a) {
 			INFO_ADD(v);
 		}
 		INFO_ADD(L"OK!");
-	}
-	else {
-		INFO_ADD(L"x64 is not supported.");
 	}
 
 	UnlockButton(a, BUTTON_STACK_CLEAR_SCAN);
@@ -251,6 +260,7 @@ bool OnCreate(Alice &a) {
 	a.Button(BUTTON_AOB_SCAN_TEST, L"ScanTest", (VIEWER_WIDTH - 220), (AR_HEIGHT + 30), 100);
 	//a.Button(BUTTON_AOB_SCAN_TEST_FULL, L"ScanTest(Full)", (VIEWER_WIDTH - 110), (AR_HEIGHT + 30), 100);
 	// VM Enter Scanner
+	a.CheckBox(CHECK_DEVM, L"unvirtualized", (VIEWER_WIDTH - 430), (AR_HEIGHT + 50), BST_CHECKED);
 	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 330), (AR_HEIGHT + 50));
 	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 220), (AR_HEIGHT + 50), L"3", 100);
 	a.Button(BUTTON_VM_SCAN, L"VM Enter Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 50), 100);
@@ -275,6 +285,7 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 		if (!frost_dropped) {
 			return false;
 		}
+		SetDEVM(a.CheckBoxStatus(CHECK_DEVM));
 		a.ChangeState(nIDDlgItem, FALSE);
 		RunScanner(a, nIDDlgItem);
 		return true;

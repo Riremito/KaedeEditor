@@ -3,6 +3,10 @@
 
 #include"Frost.h"
 
+
+void SetDEVM(bool flag);
+bool GetDEVM();
+
 typedef struct {
 	std::wstring tag;
 	std::wstring patch;

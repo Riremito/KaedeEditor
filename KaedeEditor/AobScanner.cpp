@@ -1,5 +1,14 @@
 ﻿#include"AobScanner.h"
 
+bool flag_devm = true;
+void SetDEVM(bool flag) {
+	flag_devm = flag;
+}
+
+bool GetDEVM() {
+	return flag_devm;
+}
+
 // ===== REMOVE CHECKS =====
 AddrInfoEx Find_Check_Language(Frost &f) {
 	AddrInfoEx aix = { L"Check_Language", L"EB" };
@@ -98,7 +107,7 @@ AddrInfoEx Find_Check_Mutex(Frost &f) {
 	res = f.AobScan(L"FF 15 ?? ?? ?? ?? 3D B7 00 00 00 0F 85");
 	if (res.VA) {
 		res = f.GetAddrInfo(res.VA + 0x0B);
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -145,7 +154,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_1(Frost &f) {
 
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 ?? ?? ?? ?? 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 45 FC ?? ?? ?? ?? 68");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -157,6 +166,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	/*
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 82 00 00 00 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 45 ?? 00 00 00 00 90 E8 ?? ?? ?? ?? 50 E8");
 	if (res.VA) {
 		mode = L"JMS v164.0-1";
@@ -168,6 +178,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
 		mode = L"JMS v164.0-2";
 		return aix;
 	}
+	*/
 
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 ?? ?? ?? ?? 33 C0 8D BD ?? ?? ?? ?? F3 AB");
 	if (res.VA) {
@@ -191,7 +202,7 @@ AddrInfoEx Find_HackShield_HeartBeat(Frost &f) {
 
 	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 56 BE ?? ?? ?? ?? 56 8D 85 ?? ?? ?? ?? 6A 00 50 E8");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -203,6 +214,7 @@ AddrInfoEx Find_HackShield_MKD25tray(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	/*
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 90 E8 ?? ?? ?? ?? 83 7D FC 00 59");
 	if (res.VA) {
 		mode = L"JMS v164.0-1";
@@ -211,13 +223,14 @@ AddrInfoEx Find_HackShield_MKD25tray(Frost &f) {
 
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 E8 ?? ?? ?? ?? 90 83 7D FC 00 59");
 	if (res.VA) {
-		mode = L"JMS v164-2";
+		mode = L"JMS v164.0-2";
 		return aix;
 	}
+	*/
 
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 FF 15");
 	if (res.VA) {
-		mode = L"JMS v176.0";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -247,6 +260,7 @@ AddrInfoEx Find_HackShield_Autoup(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	/*
 	res = f.AobScan(L"56 8B F1 83 7E 14 00 74 16 68 ?? ?? ?? ?? 68 80 00 00 00 90 E8 ?? ?? ?? ?? 83 66 14 00 59 59 5E C3");
 	if (res.VA) {
 		mode = L"JMS v164.0-1";
@@ -258,10 +272,11 @@ AddrInfoEx Find_HackShield_Autoup(Frost &f) {
 		mode = L"JMS v164.0-2";
 		return aix;
 	}
+	*/
 
 	res = f.AobScan(L"56 8B F1 83 7E 14 00 74 ?? 68 ?? ?? ?? ?? 68 80 00 00 00 FF 15");
 	if (res.VA) {
-		mode = L"JMS v176.0";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -285,6 +300,7 @@ AddrInfoEx Find_HackShield_ASPLunchr(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	/*
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 14 00 75 ?? 68 ?? ?? ?? ?? 90 E8");
 	if (res.VA) {
 		mode = L"JMS v164.0-1";
@@ -296,10 +312,11 @@ AddrInfoEx Find_HackShield_ASPLunchr(Frost &f) {
 		mode = L"JMS v164.0-2";
 		return aix;
 	}
+	*/
 
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 14 00 75 ?? 68 ?? ?? ?? ?? FF 15");
 	if (res.VA) {
-		mode = L"JMS v176.0";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -645,7 +662,7 @@ AddrInfoEx Find_Launcher(Frost &f) {
 
 	res = f.AobScan(L"55 8B EC 83 EC ?? 53 56 57 33 ?? ?? FF 15 ?? ?? ?? ?? 8B ?? ?? 89 ?? ?? ?? ?? ?? 8B");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -665,7 +682,7 @@ AddrInfoEx Find_Ad(Frost &f) {
 
 	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 56 57 33 DB 53 FF 15");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -795,7 +812,7 @@ AddrInfoEx Find_Extra_MapDropLimit(Frost &f) {
 
 	res = f.AobScan(L"E8 ?? ?? ?? ?? 8B 80 ?? ?? ?? ?? C1 E8 ?? ?? ?? ?? 45 F0 74");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
 
@@ -869,18 +886,31 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 	return aix;
 }
 
-AddrInfoEx Find_Addr_EnterSendPacket(Frost &f) {
+ULONG_PTR gSendPacketAddr = 0;
+ULONG_PTR gEnterSendPacketOffset = 0;
+bool Check_EnterSendPacket(Frost &f, ULONG_PTR uVA) {
+	// get call addr from scan result, and check the call addr
+	if (f.GetRefAddrRelative(uVA + gEnterSendPacketOffset, 0x01).VA == gSendPacketAddr) {
+		return true;
+	}
+	return false;
+}
+
+AddrInfoEx Find_Addr_EnterSendPacket(Frost &f, ULONG_PTR uSendPacketAddr) {
 	AddrInfoEx aix = { L"?SendPacket@@YAXABVCOutPacket@@@Z" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"FF 74 24 04 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? C3");
+	gSendPacketAddr = uSendPacketAddr;
+	gEnterSendPacketOffset = 0x0A;
+	res = f.AobScan(L"FF 74 24 04 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? C3", Check_EnterSendPacket);
 	if (res.VA) {
 		mode = L"JMS v164.0";
 		return aix;
 	}
 
-	res = f.AobScan(L"8B 44 24 04 8B 0D ?? ?? ?? ?? 50 E8 ?? ?? ?? ?? C3");
+	gEnterSendPacketOffset = 0x0B;
+	res = f.AobScan(L"8B 44 24 04 8B 0D ?? ?? ?? ?? 50 E8 ?? ?? ?? ?? C3", Check_EnterSendPacket);
 	if (res.VA) {
 		mode = L"JMS v188.0";
 		return aix;
@@ -1051,6 +1081,12 @@ AddrInfoEx Find_Addr_ProcessPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 1C 64 A3 00 00 00 00 8B D9 8B 2D ?? ?? ?? ?? 89 6C 24 ?? 85 ED 74");
+	if (res.VA) {
+		mode = L"CMS v104.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1160,16 +1196,16 @@ AddrInfoEx Find_Addr_StringPool__ms_aString(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v186.1
+	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? 0F BE ?? 6A 04");
 	if (res.VA) {
-		mode = L"JMS v186.1";
+		mode = L"JMS v164.0";
 		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x02));
 		return aix;
 	}
 
-	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04"); // JMS v194.0
+	res = f.AobScan(L"75 ?? 8B ?? ?? ?? ?? ?? ?? 0F BE ?? 6A 04");
 	if (res.VA) {
-		mode = L"JMS v194.0";
+		mode = L"JMS v188.0";
 		res = f.GetAddrInfo(*(DWORD *)(res.RA + 0x02 + 0x03));
 		return aix;
 	}
@@ -1190,7 +1226,7 @@ AddrInfoEx Find_Addr_IWzResMan__GetObjectA(Frost &f) {
 
 	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 C7 44 24 ?? 00 00 00 00 8D 44 24 ?? 50 C7 44 24 ?? 00 00 00 00 FF 15");
 	if (res.VA) {
-		mode = L"JMS v308.0";
+		mode = L"JMS v188.0";
 		return aix;
 	}
 
@@ -1491,7 +1527,7 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(Extra_PointItemMultipleDrop);
 	// Addr
 	ADDSCANRESULT(Addr_SendPacket);
-	ADDSCANRESULT(Addr_EnterSendPacket);
+	result.push_back(Find_Addr_EnterSendPacket(f, result.back().info.VA));
 	ADDSCANRESULT(Addr_COutPacket);
 	ADDSCANRESULT(Addr_Encode1);
 	ADDSCANRESULT(Addr_Encode2);
