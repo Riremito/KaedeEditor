@@ -26,6 +26,7 @@ enum SubControl {
 	STATIC_VM_SECTION,
 	EDIT_VM_SECTION,
 	BUTTON_VM_SCAN,
+	BUTTON_STACK_CLEAR_SCAN,
 };
 
 enum ListViewIndex {

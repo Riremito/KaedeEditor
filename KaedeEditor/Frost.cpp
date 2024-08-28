@@ -164,7 +164,7 @@ ULONG_PTR Frost::GetVirtualAddress(ULONG_PTR uRawAddress) {
 }
 
 
-AddrInfo Frost::AobScan(std::wstring wAob, bool scan_all_section) {
+AddrInfo Frost::AobScan(std::wstring wAob, bool (*scan_func)(Frost &, ULONG_PTR), bool scan_all_section) {
 	AddrInfo asr = { 0 };
 	::AobScan aob(wAob);
 	if (!ImageBase) {
@@ -187,6 +187,13 @@ AddrInfo Frost::AobScan(std::wstring wAob, bool scan_all_section) {
 		for (ULONG_PTR uAddr = uStartAddr; uAddr < uEndAddr; uAddr++) {
 			if (aob.Compare(uAddr)) {
 				ULONG_PTR uVA = GetVirtualAddress(uAddr);
+
+				if (scan_func) {
+					if (!scan_func(*this, uVA)) {
+						continue;
+					}
+				}
+
 				asr.VA = uVA;
 				asr._RVA = uVA - ImageBase;
 				asr.RA = uAddr;
@@ -203,7 +210,7 @@ AddrInfo Frost::AobScan(std::wstring wAob, bool scan_all_section) {
 	return asr;
 }
 
-std::vector<AddrInfo> Frost::AobScanFin(std::wstring wAob, bool scan_all_section) {
+std::vector<AddrInfo> Frost::AobScanAll(std::wstring wAob, bool (*scan_func)(Frost &, ULONG_PTR), bool scan_all_section) {
 	std::vector<AddrInfo> asrs;
 	::AobScan aob(wAob);
 	if (!ImageBase) {
@@ -227,6 +234,13 @@ std::vector<AddrInfo> Frost::AobScanFin(std::wstring wAob, bool scan_all_section
 			if (aob.Compare(uAddr)) {
 				AddrInfo asr = { 0 };
 				ULONG_PTR uVA = GetVirtualAddress(uAddr);
+
+				if (scan_func) {
+					if (!scan_func(*this, uVA)) {
+						continue;
+					}
+				}
+
 				asr.VA = uVA;
 				asr._RVA = uVA - ImageBase;
 				asr.RA = uAddr;
@@ -237,46 +251,6 @@ std::vector<AddrInfo> Frost::AobScanFin(std::wstring wAob, bool scan_all_section
 
 		if (!scan_all_section) {
 			break;
-		}
-	}
-
-	return asrs;
-}
-
-std::vector<AddrInfo> Frost::AobScanCustomAll(std::wstring wAob, bool (*scan_func)(Frost &, ULONG_PTR)) {
-	std::vector<AddrInfo> asrs;
-	::AobScan aob(wAob);
-	if (!ImageBase) {
-		return asrs;
-	}
-
-	size_t aob_size = aob.size();
-	if (aob_size == 0) {
-		return asrs;
-	}
-
-	if (!image_section_headers.size()) {
-		return asrs;
-	}
-
-	auto &v = image_section_headers[0]; // 1st code section
-	ULONG_PTR uStartAddr = (ULONG_PTR)input_file_data + v.PointerToRawData;
-	ULONG_PTR uEndAddr = uStartAddr + v.SizeOfRawData - aob_size;
-
-	for (ULONG_PTR uAddr = uStartAddr; uAddr < uEndAddr; uAddr++) {
-		if (aob.Compare(uAddr)) {
-			AddrInfo asr = { 0 };
-			ULONG_PTR uVA = GetVirtualAddress(uAddr);
-
-			if (!scan_func(*this, uVA)) {
-				continue;
-			}
-
-			asr.VA = uVA;
-			asr._RVA = uVA - ImageBase;
-			asr.RA = uAddr;
-			asr._RRA = uAddr - (ULONG_PTR)input_file_data;
-			asrs.push_back(asr);
 		}
 	}
 

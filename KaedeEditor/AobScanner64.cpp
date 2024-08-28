@@ -535,7 +535,7 @@ std::vector<AddrInfoEx> VMScanner64(Frost &f, int vm_section64) {
 
 	size_t index = 0;
 	g_vm_section64 = vm_section64;
-	for (auto &v : f.AobScanCustomAll(L"E9", VM_Enter_Themida64)) {
+	for (auto &v : f.AobScanAll(L"E9", VM_Enter_Themida64)) {
 		aix.tag = L"VM_ENTER_" + std::to_wstring(index++);
 		res = v;
 		result.push_back(aix);

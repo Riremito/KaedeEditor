@@ -854,6 +854,18 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 00 00 00 00 89 4D ?? C7 45 ?? ?? ?? ?? ?? 8B 45 ?? 8B 4D ?? 03 48 ?? 89 4D ?? 8B 55 ?? 81 C2 ?? ?? ?? ?? 89 55 ?? 8B 45 ?? 8B 4D ?? 03 48 ?? 89 4D ?? C7 45 ?? 00 00 00 00 E9");
+	if (res.VA) {
+		mode = L"JMS v308.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 4D E8 A1 ?? ?? ?? ?? 05 ?? ?? ?? ?? 8B 40 1C 05 ?? ?? ?? ?? 89 45 ?? C7 45 ?? 00 00 00 00 E9");
+	if (res.VA) {
+		mode = L"CMS v99.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -891,6 +903,18 @@ AddrInfoEx Find_Addr_COutPacket(Frost &f) {
 	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 0C 64 A3 00 00 00 00 8B F1 89 74 24 08 68 04 01 00 00 B9 ?? ?? ?? ?? C7 46 04 00 00 00 00 E8");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 89 74 24 ?? 8D 44 24 ?? 50 8D 4E ?? 68 ?? ?? ?? ?? C7 01 00 00 00 00 E8");
+	if (res.VA) {
+		mode = L"JMS v308.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 89 74 24 ?? 33 FF 68 ?? ?? ?? ?? B9 ?? ?? ?? ?? 89 7E 04 E8");
+	if (res.VA) {
+		mode = L"CMS v99.1";
 		return aix;
 	}
 
@@ -1531,6 +1555,7 @@ bool CheckResult(std::vector<AddrInfoEx> &result, AddrInfo &res) {
 	}
 	return false;
 }
+
 std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section) {
 	std::vector<AddrInfoEx> result;
 
@@ -1539,7 +1564,7 @@ std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section) {
 
 	size_t index = 0;
 	g_vm_section = vm_section;
-	for (auto &v : f.AobScanCustomAll(L"6A 00 E9", VM_Enter_VMP)) {
+	for (auto &v : f.AobScanAll(L"6A 00 E9", VM_Enter_VMP)) {
 		aix.tag = L"VM_ENTER_" + std::to_wstring(index++);
 		res = f.GetAddrInfo(v.VA + 0x02);
 		result.push_back(aix);
@@ -1547,13 +1572,41 @@ std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section) {
 
 	index = 0;
 	aix.mode = L"Themida OR ?";
-	for (auto &v : f.AobScanCustomAll(L"E9", VM_Enter_Themida)) {
+	for (auto &v : f.AobScanAll(L"E9", VM_Enter_Themida)) {
 		if (CheckResult(result, v)) {
 			continue;
 		}
 		aix.tag = L"VM_ENTER_" + std::to_wstring(index++);
 		res = v;
 		result.push_back(aix);
+	}
+
+	return result;
+}
+
+
+std::vector<AddrInfoEx> StackClearScanner(Frost &f) {
+	std::vector<AddrInfoEx> result;
+
+	// 1
+	{
+		AddrInfoEx aix = { L"StackClear_1", L"EB 2B CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"33 DB 33 D2 33 F6 33 FF 33 ED 64 A1 18 00 00 00 8B 48 08 8B 40 04 3B C1 0F 86 0A 00 00 00 83 E8 04 89 18 E9 EE FF FF FF 33 C0 33 C9 C3")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
+	// 2
+	{
+		AddrInfoEx aix = { L"StackClear_2", L"EB 24 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"31 DB 31 D2 31 F6 31 FF 31 ED 64 A1 18 00 00 00 8B 48 08 8B 40 04 39 C8 76 07 83 E8 04 89 18 EB F5 31 C0 31 C9 C3")) {
+			res = v;
+			result.push_back(aix);
+		}
 	}
 
 	return result;

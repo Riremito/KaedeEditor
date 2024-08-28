@@ -138,7 +138,6 @@ bool VMScanThread(Alice &a) {
 	a.SetText(TEXTAREA_INFO, L"");
 
 	INFO_ADD(L"Loading...");
-
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
 	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
 		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
@@ -150,6 +149,46 @@ bool VMScanThread(Alice &a) {
 
 	INFO_ADD(L"OK!");
 	UnlockButton(a, BUTTON_VM_SCAN);
+	return true;
+}
+
+bool StackClearScanThread(Alice &a) {
+	Frost &f = *frost_dropped;
+
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	a.SetText(TEXTAREA_INFO, L"");
+
+	if (!f.Isx64()) {
+		INFO_ADD(L"Loading...");
+		std::vector<std::wstring> vAAScript;
+		for (auto &v : StackClearScanner(f)) {
+			std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+			if (v.info.VA) {
+				if (v.patch.length()) {
+					// AA Script (CE)
+					vAAScript.push_back(L"// " + v.tag);
+					vAAScript.push_back(wVA + L":");
+					vAAScript.push_back(L"db " + v.patch);
+					vAAScript.push_back(L""); // LF
+					continue;
+				}
+			}
+		}
+		INFO_ADD(L"// AA Script (CE)");
+		for (auto &v : vAAScript) {
+			INFO_ADD(v);
+		}
+		INFO_ADD(L"OK!");
+	}
+	else {
+		INFO_ADD(L"x64 is not supported.");
+	}
+
+	UnlockButton(a, BUTTON_STACK_CLEAR_SCAN);
 	return true;
 }
 
@@ -168,6 +207,10 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 	}
 	case BUTTON_VM_SCAN: {
 		thread_func = (decltype(thread_func))VMScanThread;
+		break;
+	}
+	case BUTTON_STACK_CLEAR_SCAN: {
+		thread_func = (decltype(thread_func))StackClearScanThread;
 		break;
 	}
 	default: {
@@ -198,7 +241,8 @@ bool OnCreate(Alice &a) {
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"NameTag", 300);
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Mode", 100);
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Patch", 200);
-	a.EditBox(EDIT_AOB_SCAN_RESULT_SELECTED, 3, (AR_HEIGHT + 10), L"", (VIEWER_WIDTH - 120));
+	a.EditBox(EDIT_AOB_SCAN_RESULT_SELECTED, 3, (AR_HEIGHT + 10), L"", (VIEWER_WIDTH - 230));
+	a.Button(BUTTON_STACK_CLEAR_SCAN, L"StackClearScan", (VIEWER_WIDTH - 220), (AR_HEIGHT + 10), 100);
 	a.Button(BUTTON_AOB_SCAN, L"AobScan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 10), 100);
 	// Scan Test
 	a.EditBox(EDIT_AOB_SCAN_TEST, 3, (AR_HEIGHT + 30), L"", (VIEWER_WIDTH - 340));
@@ -225,6 +269,7 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 	case BUTTON_AOB_SCAN:
 	case BUTTON_AOB_SCAN_TEST:
 	case BUTTON_VM_SCAN:
+	case BUTTON_STACK_CLEAR_SCAN:
 	{
 		// file is not opened.
 		if (!frost_dropped) {
