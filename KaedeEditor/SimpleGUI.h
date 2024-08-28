@@ -1,4 +1,4 @@
-#ifndef __ALICE_H__
+﻿#ifndef __ALICE_H__
 #define __ALICE_H__
 
 class Alice {

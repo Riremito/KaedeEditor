@@ -1,4 +1,4 @@
-#ifndef __SIMPLE__H__
+﻿#ifndef __SIMPLE__H__
 #define __SIMPLE__H__
 
 #include<Windows.h>

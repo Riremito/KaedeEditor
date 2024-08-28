@@ -1,4 +1,4 @@
-#include"Formatter.h"
+﻿#include"Formatter.h"
 
 std::wstring BYTEtoString(BYTE b) {
 	std::wstring wb;

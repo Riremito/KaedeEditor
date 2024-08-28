@@ -1,4 +1,4 @@
-#include"Frost.h"
+﻿#include"Frost.h"
 #include"AobScan.h"
 
 // public

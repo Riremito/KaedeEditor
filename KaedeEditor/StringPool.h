@@ -1,4 +1,4 @@
-#ifndef __STRINGPOOL_H__
+﻿#ifndef __STRINGPOOL_H__
 #define __STRINGPOOL_H__
 
 #include<Windows.h>

@@ -1,4 +1,4 @@
-#include"Simple.h"
+﻿#include"Simple.h"
 
 // create
 bool Alice::StaticText(size_t nIDDlgItem, std::wstring wText, int X, int Y) {

@@ -1,4 +1,4 @@
-#ifndef __AOBSCANNER_H__
+﻿#ifndef __AOBSCANNER_H__
 #define __AOBSCANNER_H__
 
 #include"Frost.h"

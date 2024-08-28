@@ -1,4 +1,4 @@
-#include"AobScanner.h"
+﻿#include"AobScanner.h"
 
 // ===== REMOVE CHECKS =====
 AddrInfoEx Find_Check_Language(Frost &f) {

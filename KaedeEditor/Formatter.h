@@ -1,4 +1,4 @@
-#ifndef __FORMATTER_H__
+﻿#ifndef __FORMATTER_H__
 #define __FORMATTER_H__
 #include<Windows.h>
 #include<string>

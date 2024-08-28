@@ -1,4 +1,4 @@
-#include"StringPool.h"
+﻿#include"StringPool.h"
 
 // public
 StringPool::StringPool(UINT cp, BYTE *xor_key, size_t size) {

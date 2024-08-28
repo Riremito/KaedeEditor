@@ -1,4 +1,4 @@
-#ifndef __KAEDE_EDITOR_H__
+﻿#ifndef __KAEDE_EDITOR_H__
 #define __KAEDE_EDITOR_H__
 
 #include"Simple.h"

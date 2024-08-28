@@ -1,4 +1,4 @@
-#include"Simple.h"
+﻿#include"Simple.h"
 
 // public
 bool Alice::SetOnCreate(bool (*function)(Alice&)) {

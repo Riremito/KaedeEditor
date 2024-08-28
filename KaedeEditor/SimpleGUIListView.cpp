@@ -1,4 +1,4 @@
-#include"Simple.h"
+﻿#include"Simple.h"
 
 // public
 bool Alice::ListView_AddHeader(size_t nIDDlgItem, std::wstring wHeader, int Width) {

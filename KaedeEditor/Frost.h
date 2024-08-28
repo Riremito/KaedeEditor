@@ -1,4 +1,4 @@
-#ifndef __FROST_H__
+﻿#ifndef __FROST_H__
 #define __FROST_H__
 
 #include<Windows.h>

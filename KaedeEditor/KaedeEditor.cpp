@@ -1,4 +1,4 @@
-#include"KaedeEditor.h"
+﻿#include"KaedeEditor.h"
 
 Frost *frost_dropped = NULL;
 int frost_ref_count = 0;

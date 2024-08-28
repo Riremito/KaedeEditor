@@ -1,4 +1,4 @@
-#ifndef __AOBSCAN_H__
+﻿#ifndef __AOBSCAN_H__
 #define __AOBSCAN_H__
 
 #include<Windows.h>

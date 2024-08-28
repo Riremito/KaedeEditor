@@ -1,4 +1,4 @@
-#include"AobScan.h"
+﻿#include"AobScan.h"
 
 AobScan::AobScan(std::wstring wAob) {
 	init = CreateAob(wAob);
