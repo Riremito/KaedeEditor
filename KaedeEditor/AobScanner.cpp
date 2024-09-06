@@ -901,6 +901,12 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F9 8D 47 ?? 50 8D 4C 24 ?? E8");
+	if (res.VA) {
+		mode = L"KMS v2.114";
+		return aix;
+	}
+
 	return aix;
 }
 
