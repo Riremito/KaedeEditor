@@ -1,4 +1,5 @@
 ﻿#include"AobScanner.h"
+#include"AobScan.h"
 
 bool flag_devm = true;
 void SetDEVM(bool flag) {
@@ -422,6 +423,92 @@ AddrInfoEx Find_HackShield_Packet(Frost &f) {
 }
 
 // ===== REMOVE ANTI CHEAT - EASY METHOD =====
+AddrInfo Get_Addr_EasyMethod_Ptr(Frost &f, ULONG_PTR uVA, std::wstring preAob, size_t position) {
+	AddrInfo res = { 0 };
+	AobScan pm(preAob);
+
+	res = f.GetAddrInfo(uVA - pm.size());
+	if (!res.VA) {
+		return res;
+	}
+
+	if (!pm.Compare(res.RA)) {
+		return AddrInfo{};
+	}
+
+	return f.GetAddrInfo(*(DWORD *)(res.RA + position));
+}
+
+ULONG_PTR gEasyMethod_Ptr = 0;
+bool Check_EasyMethod(Frost &f, ULONG_PTR uVA) {
+	AddrInfo ai = f.GetAddrInfo(uVA + 0x04);
+
+	if (!ai.VA) {
+		return false;
+	}
+
+	if (*(DWORD *)ai.RA == gEasyMethod_Ptr) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Find_Addr_EasyMethod(Frost &f, std::vector<AddrInfoEx> &result) {
+	AddrInfo res = { 0 };
+
+	gEasyMethod_Ptr = 0;
+
+	res = f.AobScan(L"E8 ?? ?? ?? ?? EB 05 E8 ?? ?? ?? ?? 66");
+	result.push_back(AddrInfoEx{ L"EasyMethod_Test", L"", L"Easy", res });
+
+	if (!res.VA) {
+		return false;
+	}
+
+	// start and stop
+	result.push_back(AddrInfoEx{ L"EasyMethod_StartKeyCrypt", L"31 C0 C3", L"Easy", f.GetRefAddrRelative(res.VA, 0x01) });
+	result.push_back(AddrInfoEx{ L"EasyMethod_StopKeyCrypt", L"31 C0 C3", L"Easy", f.GetRefAddrRelative(res.VA + 0x07, 0x01) });
+
+	// init
+	AddrInfoEx aix_ptr = { L"EasyMethod_Ptr" };
+	aix_ptr.info = Get_Addr_EasyMethod_Ptr(f, res.VA, L"8B 0D ?? ?? ?? ?? 66 ?? ?? ?? 75 07", 0x02);
+	if (aix_ptr.info.VA) {
+		aix_ptr.mode = L"JMS v188";
+		gEasyMethod_Ptr = aix_ptr.info.VA;
+	}
+
+	if (!aix_ptr.info.VA) {
+		aix_ptr.info = Get_Addr_EasyMethod_Ptr(f, res.VA, L"8B 0D ?? ?? ?? ?? 75 07", 0x02);
+		aix_ptr.mode = L"JMS v186";
+		gEasyMethod_Ptr = aix_ptr.info.VA;
+	}
+
+	if (!aix_ptr.info.VA) {
+		aix_ptr.info = Get_Addr_EasyMethod_Ptr(f, res.VA, L"8B 0D ?? ?? ?? ?? 3B ?? 74 ?? 39 ?? ?? 74 ?? 66 ?? ?? ?? 75 07", 0x02);
+		aix_ptr.mode = L"JMS v164";
+		gEasyMethod_Ptr = aix_ptr.info.VA;
+	}
+	result.push_back(aix_ptr);
+
+	AddrInfoEx aix_init = { L"EasyMethod_Init", L"31 C0 C3" , L"Easy" };
+	if (!gEasyMethod_Ptr) {
+		result.push_back(aix_init);
+		return false;
+	}
+
+	aix_init.info = f.AobScan(L"33 C0 39 05 ?? ?? ?? ?? 0F 95 C0 C3", Check_EasyMethod);
+	result.push_back(aix_init);
+
+	// inlined
+	aix_init.tag = L"EasyMethod_Init_inline";
+	aix_init.patch = L"90 90 90";
+	for (auto &v : f.AobScanAll(L"33 C0 83 3D ?? ?? ?? ?? 00 0F 95 C0 85 C0", Check_EasyMethod)) {
+		aix_init.info = f.GetAddrInfo(v.VA + 0x09);
+		result.push_back(aix_init);
+	}
+	return true;
+}
 AddrInfoEx Find_EasyMethod_Init(Frost &f) {
 	AddrInfoEx aix = { L"EasyMethod_Init (CSecurityClient::IsInstantiated)" , L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
@@ -1520,9 +1607,11 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 		ADDSCANRESULT(HackShield_HSUpdate);
 	//}
 	// Remove HackShield/XignCode/BlackCipher by chuichui, written for TWMS and others
-	ADDSCANRESULT(EasyMethod_Init);
-	ADDSCANRESULT(EasyMethod_StartKeyCrypt);
-	ADDSCANRESULT(EasyMethod_StopKeyCrypt);
+
+	Find_Addr_EasyMethod(f, result);
+	//ADDSCANRESULT(EasyMethod_StartKeyCrypt);
+	//ADDSCANRESULT(EasyMethod_StopKeyCrypt);
+	//ADDSCANRESULT(EasyMethod_Init);
 	// Remove Anti Hack
 	ADDSCANRESULT(DR_Check);
 	ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
