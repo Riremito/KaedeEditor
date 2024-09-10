@@ -739,6 +739,14 @@ AddrInfoEx Find_WindowMode(Frost &f) {
 		res = f.GetAddrInfo(res.VA + 0x03);
 		return aix;
 	}
+
+	res = f.AobScan(L"C7 05 ?? ?? ?? ?? 10 00 00 00 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B");
+	if (res.VA) {
+		mode = L"THMS v87.0";
+		res = f.GetAddrInfo(res.VA + 0x06);
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -756,6 +764,12 @@ AddrInfoEx Find_Launcher(Frost &f) {
 	res = f.AobScan(L"83 EC ?? 56 57 33 F6 56 FF 15 ?? ?? ?? ?? 8B 7C 24 ?? 89 3D ?? ?? ?? ?? 8B 87 ?? ?? ?? ?? 6A 65 56");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"83 EC ?? 55 56 33 ED 55 FF 15 ?? ?? ?? ?? 8B 74 24 ?? 89 35 ?? ?? ?? ?? 8B 86 ?? ?? ?? ?? 8D 4C 24 ?? 51 C7");
+	if (res.VA) {
+		mode = L"THMS v88";
 		return aix;
 	}
 
@@ -994,6 +1008,18 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 56 57 8B F9 8D B7 ?? ?? ?? ?? 8B CE 89 75 ?? E8 ?? ?? ?? ?? 8B 47 08 33 C9 3B C1 89 4D ?? 74");
+	if (res.VA) {
+		mode = L"THMS v87.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 8D 86 ?? ?? ?? ?? 50 8D 4C 24 ?? E8 ?? ?? ?? ?? 8B 46 08 C7 44 24 ?? 00 00 00 00 85 C0 74");
+	if (res.VA) {
+		mode = L"THMS v88.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1053,9 +1079,9 @@ AddrInfoEx Find_Addr_COutPacket(Frost &f) {
 		return aix;
 	}
 
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 89 74 24 ?? 33 FF 68 ?? ?? ?? ?? B9 ?? ?? ?? ?? 89 7E 04 E8");
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 89 74 24 ?? 33 FF 68 ?? ?? ?? ?? B9 ?? ?? ?? ?? 89 7E 04 E8 ?? ?? ?? ?? 83 C0 04 89 46 04 C7 40 FC 00 01 00 00 8B 44 24 ?? 89 7C 24 ?? 89 3E");
 	if (res.VA) {
-		mode = L"CMS v99.1";
+		mode = L"THMS v88.0";
 		return aix;
 	}
 
@@ -1215,6 +1241,12 @@ AddrInfoEx Find_Addr_Decode1(Frost &f) {
 	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 14 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 65 F0 89 4D E8 0F B7 41 0C 8B 51 14 8B 71 08 2B C2 C7 45 FC 00 00 00 00 83 F8 01");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 51 8B 51 ?? 8B 41 ?? 56 0F B7 71 ?? 2B F2 03 C2 83 FE 01 5E 73 ?? 68");
+	if (res.VA) {
+		mode = L"THMS v87.0";
 		return aix;
 	}
 
@@ -1575,6 +1607,19 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		return true;
 	}
 
+	// THMS
+	res = f.ScanString("61.90.227.132");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"THMS v88";
+		result.push_back(aix);
+		check &= true;
+	}
+
+	if (check) {
+		return true;
+	}
+
 	return false;
 }
 
@@ -1738,9 +1783,9 @@ std::vector<AddrInfoEx> VMScanner(Frost &f, int vm_section) {
 std::vector<AddrInfoEx> StackClearScanner(Frost &f) {
 	std::vector<AddrInfoEx> result;
 
-	// 1
+	// PostBB 1
 	{
-		AddrInfoEx aix = { L"StackClear_1", L"EB 2B CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC" };
+		AddrInfoEx aix = { L"StackClear", L"EB 2B CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC", L"PostBB_1"};
 		AddrInfo &res = aix.info;
 
 		for (auto &v : f.AobScanAll(L"33 DB 33 D2 33 F6 33 FF 33 ED 64 A1 18 00 00 00 8B 48 08 8B 40 04 3B C1 0F 86 0A 00 00 00 83 E8 04 89 18 E9 EE FF FF FF 33 C0 33 C9 C3")) {
@@ -1748,12 +1793,22 @@ std::vector<AddrInfoEx> StackClearScanner(Frost &f) {
 			result.push_back(aix);
 		}
 	}
-	// 2
+	// PostBB 2
 	{
-		AddrInfoEx aix = { L"StackClear_2", L"EB 24 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC" };
+		AddrInfoEx aix = { L"StackClear", L"EB 24 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC", L"PostBB_2" };
 		AddrInfo &res = aix.info;
 
 		for (auto &v : f.AobScanAll(L"31 DB 31 D2 31 F6 31 FF 31 ED 64 A1 18 00 00 00 8B 48 08 8B 40 04 39 C8 76 07 83 E8 04 89 18 EB F5 31 C0 31 C9 C3")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
+	// Pre-BB
+	{
+		AddrInfoEx aix = { L"StackClear", L"EB 08 CC CC CC CC CC CC CC CC", L"PreBB" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"31 C0 89 04 24 83 C4 04 EB F6")) {
 			res = v;
 			result.push_back(aix);
 		}
