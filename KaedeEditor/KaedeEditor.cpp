@@ -152,6 +152,57 @@ bool VMScanThread(Alice &a) {
 	return true;
 }
 
+bool PolyScanThread(Alice &a) {
+	Frost &f = *frost_dropped;
+
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	a.SetText(TEXTAREA_INFO, L"");
+
+	//INFO_ADD(L"Loading...");
+	bool check = true;
+
+	if (f.Isx64()) {
+		check = false;
+		INFO_ADD(L"x64 is not supported.");
+	}
+
+	if (check) {
+		std::vector<std::wstring> vAAScript;
+
+		int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
+		for (auto &v : PolyScanner(f, vm_section)) {
+			std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
+			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+
+
+			if (v.patch.length()) {
+				// AA Script (CE)
+				vAAScript.push_back(L"// " + v.tag);
+				vAAScript.push_back(wVA + L":");
+				if (memcmp(v.patch.c_str(), L"jmp ", 8) == 0) {
+					vAAScript.push_back(v.patch);
+				}
+				else {
+					vAAScript.push_back(L"db " + v.patch);
+				}
+				vAAScript.push_back(L""); // LF
+				continue;
+			}
+		}
+		INFO_ADD(L"// AA Script (CE)");
+		for (auto &v : vAAScript) {
+			INFO_ADD(v);
+		}
+		INFO_ADD(L"// OK!");
+	}
+
+	UnlockButton(a, BUTTON_POLY_SCAN);
+	return true;
+}
+
 bool StackClearScanThread(Alice &a) {
 	Frost &f = *frost_dropped;
 
@@ -218,6 +269,10 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 		thread_func = (decltype(thread_func))VMScanThread;
 		break;
 	}
+	case BUTTON_POLY_SCAN: {
+		thread_func = (decltype(thread_func))PolyScanThread;
+		break;
+	}
 	case BUTTON_STACK_CLEAR_SCAN: {
 		thread_func = (decltype(thread_func))StackClearScanThread;
 		break;
@@ -264,6 +319,7 @@ bool OnCreate(Alice &a) {
 	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 330), (AR_HEIGHT + 50));
 	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 220), (AR_HEIGHT + 50), L"3", 100);
 	a.Button(BUTTON_VM_SCAN, L"VM Enter Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 50), 100);
+	a.Button(BUTTON_POLY_SCAN, L"POLY Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 70), 100);
 	// Info
 	a.TextArea(TEXTAREA_INFO, 3, 360, (VIEWER_WIDTH - 6), 200);
 	a.ReadOnly(TEXTAREA_INFO);
@@ -279,6 +335,7 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 	case BUTTON_AOB_SCAN:
 	case BUTTON_AOB_SCAN_TEST:
 	case BUTTON_VM_SCAN:
+	case BUTTON_POLY_SCAN:
 	case BUTTON_STACK_CLEAR_SCAN:
 	{
 		// file is not opened.

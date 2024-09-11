@@ -139,7 +139,7 @@ ULONG_PTR Frost::GetRawAddress(ULONG_PTR uVirtualAddress) {
 		ULONG_PTR section_end = section_start + image_section_headers[i].Misc.VirtualSize;
 
 		// convert
-		if (section_start <= uVirtualAddress && uVirtualAddress <= section_end) {
+		if (section_start <= uVirtualAddress && uVirtualAddress < section_end) {
 			return uVirtualAddress - section_start + image_section_headers[i].PointerToRawData + (ULONG_PTR)input_file_data; // file offset
 		}
 	}
@@ -156,7 +156,7 @@ ULONG_PTR Frost::GetVirtualAddress(ULONG_PTR uRawAddress) {
 		ULONG_PTR section_end = section_start + image_section_headers[i].SizeOfRawData;
 
 		// convert
-		if (section_start <= uRawAddress && uRawAddress <= section_end) {
+		if (section_start <= uRawAddress && uRawAddress < section_end) {
 			return ImageBase + image_section_headers[i].VirtualAddress + (uRawAddress - section_start); // VA
 		}
 	}
@@ -270,7 +270,7 @@ int Frost::GetSectionNumber(ULONG_PTR uVirtualAddress) {
 		auto &v = image_section_headers[i];
 		ULONG_PTR uStartAddr = ImageBase + v.VirtualAddress;
 		ULONG_PTR uEndAddr = uStartAddr + v.Misc.VirtualSize;
-		if (uStartAddr <= uVirtualAddress && uVirtualAddress <= uEndAddr) {
+		if (uStartAddr <= uVirtualAddress && uVirtualAddress < uEndAddr) {
 			return i;
 		}
 	}
