@@ -1021,6 +1021,12 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 56 57 8B F9 8D 77 ?? 8B CE 89 75 ?? E8 ?? ?? ?? ?? 8B 47 08 33 C9 3B C1 89 4D ?? 74");
+	if (res.VA) {
+		mode = L"BMS v24.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1086,9 +1092,9 @@ AddrInfoEx Find_Addr_COutPacket(Frost &f) {
 		return aix;
 	}
 
+	// old version
 	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 83 66 04 00 8D 45 F3 50 8D 4E 04 68 00 01 00 00 89 75 EC E8 ?? ?? ?? ?? FF 75 0C 83 65 FC 00 FF 75 08 8B CE E8");
 	if (res.VA) {
-		aix.tag = L"COutPacket Old ver";
 		mode = L"JMS v131.0";
 		return aix;
 	}
@@ -1271,6 +1277,12 @@ AddrInfoEx Find_Addr_Decode2(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"55 8B EC 51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 02 5E 73 ?? 68");
+	if (res.VA) {
+		mode = L"BMS v24.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1288,6 +1300,12 @@ AddrInfoEx Find_Addr_Decode4(Frost &f) {
 	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 14 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 65 F0 89 4D E8 0F B7 41 0C 8B 51 14 8B 71 08 2B C2 C7 45 FC 00 00 00 00 83 F8 04");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 04 5E 73 ?? 68");
+	if (res.VA) {
+		mode = L"BMS v24.0";
 		return aix;
 	}
 
@@ -1311,6 +1329,12 @@ AddrInfoEx Find_Addr_DecodeStr(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 83 65 ?? 00 83 65 ?? 00 56 57 8B F1 8B 46 14 0F B7 4E 0C 6A 01");
+	if (res.VA) {
+		mode = L"BMS v24.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1328,6 +1352,12 @@ AddrInfoEx Find_Addr_DecodeBuffer(Frost &f) {
 	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 14 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 65 F0 8B F1 89 75 E8 0F B7 46 0C 8B 4E 14 8B 56 08 8B 7D 0C 2B C1 03 CA C7 45 FC 00 00 00 00 3B C7 73");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 56 8B F1 0F B7 56 0C 8B 4E 14 8B 46 08 57 8B 7D 0C 2B D1 03 C1 3B D7 73 ?? 68");
+	if (res.VA) {
+		mode = L"BMS v24.0";
 		return aix;
 	}
 
