@@ -1888,6 +1888,26 @@ std::vector<AddrInfoEx> StackClearScanner(Frost &f) {
 			result.push_back(aix);
 		}
 	}
+	// GMS, CMS ONLY
+	{
+		AddrInfoEx aix = { L"CheapCrash", L"EB 2F CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC", L"pushad" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"60 03 C3 03 C1 03 C2 74 02 75 25 EB 18 BE 04 74 76 F7 36 51 2C B3 96 DD BF 57 C0 10 75 43 54 4F 92 8B 09 30 F3 D4 25 10 25 15 52 05 05 58 6F CA 61")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
+	// GMS, EMS, CMS
+	{
+		AddrInfoEx aix = { L"CheapCrash", L"EB 1E CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC", L"Call_0" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"29 F7 BB ?? ?? ?? ?? 8B 04 37 8B 0E 35 ?? ?? ?? ?? 39 C1 74 05 58 31 C0 FF D0 83 C6 04 4B 75 E7")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
 
 	return result;
 }
