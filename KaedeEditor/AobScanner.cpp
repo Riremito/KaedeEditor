@@ -1027,6 +1027,12 @@ AddrInfoEx Find_Addr_SendPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 04 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F9 8D 77 ?? 8B CE 89 75 ?? E8 ?? ?? ?? ?? 8B 47 08 33 C9 89 4D ?? 3B C1 74");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1092,6 +1098,12 @@ AddrInfoEx Find_Addr_COutPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 04 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 ?? 8D 45 ?? 50 8D 4E 04 83 21 00 68 00 01 00 00 E8 ?? ?? ?? ?? FF 75 08 83 65 FC 00 8B CE E8");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	// old version
 	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 83 66 04 00 8D 45 F3 50 8D 4E 04 68 00 01 00 00 89 75 EC E8 ?? ?? ?? ?? FF 75 0C 83 65 FC 00 FF 75 08 8B CE E8");
 	if (res.VA) {
@@ -1119,6 +1131,12 @@ AddrInfoEx Find_Addr_Encode1(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"56 6A 01 8B F1 E8 ?? ?? ?? ?? 8B 4E 08 8B 46 04 8A 54 24 08 88 14 08 FF 46 08 5E C2 04 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1136,6 +1154,12 @@ AddrInfoEx Find_Addr_Encode2(Frost &f) {
 	res = f.AobScan(L"56 8B F1 8B 46 04 57 8D 7E 04 85 C0 74 03 8B 40 FC 8B 4E 08 83 C1 02 3B C8 76 1E 8B 07 85 C0 74 03 8B 40 FC 03 C0 3B C8 77 FA 8D 4C 24 0C 51 6A 00 50 8B CF E8 ?? ?? ?? ?? 8B 56 08 8B 07 66 8B 4C 24 0C 66 89 0C 02 83 46 08 02 5F 5E C2 04 00");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"56 6A 02 8B F1 E8 ?? ?? ?? ?? 8B 4E 08 8B 46 04 66 8B 54 24 08 66 89 14 08 83 46 08 02 5E C2 04 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
 		return aix;
 	}
 
@@ -1159,6 +1183,12 @@ AddrInfoEx Find_Addr_Encode4(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"56 6A 04 8B F1 E8 ?? ?? ?? ?? 8B 4E 08 8B 46 04 8B 54 24 08 89 14 08 83 46 08 04 5E C2 04 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1179,6 +1209,12 @@ AddrInfoEx Find_Addr_EncodeStr(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 04 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 8B 45 08 83 65 FC 00 85 C0 74 05 8B 40 FC EB 02 33 C0 83 C0 02 50 8B CE");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1196,6 +1232,12 @@ AddrInfoEx Find_Addr_EncodeBuffer(Frost &f) {
 	res = f.AobScan(L"53 56 8B F1 8B 46 04 57 8D 7E 04 85 C0 74 03 8B 40 FC 8B 4E 08 8B 5C 24 14 03 CB 3B C8 76 1E 8B 07 85 C0 74 03 8B 40 FC 03 C0 3B C8 77 FA 8D 54 24 14 52 6A 00 50 8B CF E8 ?? ?? ?? ?? 8B 4E 08 8B 44 24 10 03 0F 53 50 51 E8 ?? ?? ?? ?? 01 5E 08 83 C4 0C 5F 5E 5B C2 08 00");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"56 FF 74 24 0C 8B F1 E8 ?? ?? ?? ?? 8B 46 04 8B 4E 08 03 C8 51 FF 74 24 10 FF 74 24 10 E8 ?? ?? ?? ?? 01 46 08 83 C4 0C 5E C2 08 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
 		return aix;
 	}
 
@@ -1231,6 +1273,12 @@ AddrInfoEx Find_Addr_ProcessPacket(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 08 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F9 68 ?? ?? ?? ?? 8D 4D EC E8 ?? ?? ?? ?? 8B 75 08 83 65 FC 00 8B CE E8 ?? ?? ?? ?? 0F B7 C0");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1254,6 +1302,12 @@ AddrInfoEx Find_Addr_Decode1(Frost &f) {
 	res = f.AobScan(L"55 8B EC 51 8B 51 ?? 8B 41 ?? 56 0F B7 71 ?? 2B F2 03 C2 83 FE 01 5E 73 ?? 68");
 	if (res.VA) {
 		mode = L"THMS v87.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A 14 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 E8 0F B7 56 0C 8B 46 14 8B 4E 08 83 65 FC 00 2B D0 52 03 C1 50 8D 45 EF 50 E8 ?? ?? ?? ?? 83 C4 0C 01 46 14 8A 45 EF E8 ?? ?? ?? ?? C3");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
 		return aix;
 	}
 
@@ -1283,6 +1337,12 @@ AddrInfoEx Find_Addr_Decode2(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 14 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 E8 0F B7 56 0C 8B 46 14 8B 4E 08 83 65 FC 00 2B D0 52 03 C1 50 8D 45 EC 50 E8 ?? ?? ?? ?? 83 C4 0C 01 46 14 66 8B 45 EC E8 ?? ?? ?? ?? C3");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1306,6 +1366,12 @@ AddrInfoEx Find_Addr_Decode4(Frost &f) {
 	res = f.AobScan(L"55 8B EC 51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 04 5E 73 ?? 68");
 	if (res.VA) {
 		mode = L"BMS v24.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A 14 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 E8 0F B7 56 0C 8B 46 14 8B 4E 08 83 65 FC 00 2B D0 52 03 C1 50 8D 45 EC 50 E8 ?? ?? ?? ?? 83 C4 0C 01 46 14 8B 45 EC E8 ?? ?? ?? ?? C3");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
 		return aix;
 	}
 
@@ -1335,6 +1401,12 @@ AddrInfoEx Find_Addr_DecodeStr(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"6A 14 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 E8 83 65 EC 00 8B 7D 08 83 27 00 33 C0 40 89 45 FC 0F B7 56 0C 8B 4E 08 89 45 EC 8B 46 14 2B D0 52 03 C1 50 57 E8 ?? ?? ?? ?? 83 C4 0C 01 46 14 8B C7 E8 ?? ?? ?? ?? C2 04 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1358,6 +1430,12 @@ AddrInfoEx Find_Addr_DecodeBuffer(Frost &f) {
 	res = f.AobScan(L"55 8B EC 56 8B F1 0F B7 56 0C 8B 4E 14 8B 46 08 57 8B 7D 0C 2B D1 03 C1 3B D7 73 ?? 68");
 	if (res.VA) {
 		mode = L"BMS v24.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A 10 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 EC 0F B7 56 0C 8B 46 14 8B 4E 08 83 65 FC 00 2B D0 52 03 C1 50 FF 75 0C FF 75 08 E8 ?? ?? ?? ?? 83 C4 10 01 46 14 E8 ?? ?? ?? ?? C2 08 00");
+	if (res.VA) {
+		mode = L"TWMS v122.1";
 		return aix;
 	}
 
