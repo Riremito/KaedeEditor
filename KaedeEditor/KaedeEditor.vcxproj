@@ -157,6 +157,7 @@
     <ClCompile Include="SimpleGUICallback.cpp" />
     <ClCompile Include="SimpleGUIControl.cpp" />
     <ClCompile Include="SimpleGUIListView.cpp" />
+    <ClCompile Include="AobScannerTest.cpp" />
     <ClCompile Include="StringPool.cpp" />
   </ItemGroup>
   <ItemGroup>

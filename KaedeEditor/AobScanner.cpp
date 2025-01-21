@@ -1729,6 +1729,36 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		return true;
 	}
 
+	// GMS
+	// MSEA
+	res = f.ScanString("63.251.217.2");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"GMS v72";
+		result.push_back(aix);
+		check &= true;
+	}
+
+	res = f.ScanString("63.251.217.3");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"GMS v72";
+		result.push_back(aix);
+		check &= true;
+	}
+
+	res = f.ScanString("63.251.217.4");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"GMS v72";
+		result.push_back(aix);
+		check &= true;
+	}
+
+	if (check) {
+		return true;
+	}
+
 	return false;
 }
 
@@ -1982,6 +2012,16 @@ std::vector<AddrInfoEx> StackClearScanner(Frost &f) {
 		AddrInfo &res = aix.info;
 
 		for (auto &v : f.AobScanAll(L"29 F7 BB ?? ?? ?? ?? 8B 04 37 8B 0E 35 ?? ?? ?? ?? 39 C1 74 05 58 31 C0 FF D0 83 C6 04 4B 75 E7")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
+	// GMS
+	{
+		AddrInfoEx aix = { L"CheapCrash", L"EB 0C CC CC CC CC CC CC CC CC CC CC CC CC", L"Call_Random" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"E8 ?? ?? ?? ?? 64 C7 04 24 00 00 00 00 C3")) {
 			res = v;
 			result.push_back(aix);
 		}
