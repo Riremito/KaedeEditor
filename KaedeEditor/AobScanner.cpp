@@ -405,8 +405,32 @@ AddrInfoEx Find_HackShield_NullPtr(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"23 C2 57 89 75 F0 A3 ?? ?? ?? ?? 33 FF 57 89 7D FC E8");
+	if (res.VA) {
+		aix.patch = L"31 C0";
+		mode = L"GMS v72.1";
+		return aix;
+	}
+
 	return aix;
 }
+
+
+AddrInfoEx Find_HackShield_RunningCheck(Frost &f) {
+	AddrInfoEx aix = { L"HackShield_RunningCheck" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 51 51 8B 41 1C B9 01 05 01 00 3B C1 7F");
+	if (res.VA) {
+		mode = L"GMS v72.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+
 
 // for vmprotect era
 AddrInfoEx Find_HackShield_Packet(Frost &f) {
@@ -608,6 +632,20 @@ AddrInfoEx Find_DR_Check(Frost &f) {
 	return aix;
 }
 
+AddrInfoEx Find_HideDll(Frost &f) {
+	AddrInfoEx aix = { L"HideDll" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 51 51 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 83 65 FC 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C");
+	if (res.VA) {
+		mode = L"GMS v84.1";
+		return aix;
+	}
+
+	return aix;
+}
+
 AddrInfoEx Find_RemoveMSCRC_Main_RenderFrame(Frost &f) {
 	// Remove MSCRC Main - Hook
 	AddrInfoEx aix = { L"RemoveMSCRC_Main (IWzGr2D::RenderFrame)" };
@@ -744,6 +782,20 @@ AddrInfoEx Find_WindowMode(Frost &f) {
 	res = f.AobScan(L"C7 05 ?? ?? ?? ?? 10 00 00 00 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B");
 	if (res.VA) {
 		mode = L"THMS v87.0";
+		res = f.GetAddrInfo(res.VA + 0x06);
+		return aix;
+	}
+
+	res = f.AobScan(L"89 F1 C7 05 ?? ?? ?? ?? 10 00 00 00 E8 ?? ?? ?? ?? 89 F1 E8");
+	if (res.VA) {
+		mode = L"GMS v72.1";
+		res = f.GetAddrInfo(res.VA + 0x02 + 0x06);
+		return aix;
+	}
+
+	res = f.AobScan(L"C7 05 ?? ?? ?? ?? 10 00 00 00 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 8D ?? ?? ?? ?? E8");
+	if (res.VA) {
+		mode = L"GMS v84.1";
 		res = f.GetAddrInfo(res.VA + 0x06);
 		return aix;
 	}
@@ -1730,7 +1782,6 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 	}
 
 	// GMS
-	// MSEA
 	res = f.ScanString("63.251.217.2");
 	if (res.VA) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
@@ -1775,6 +1826,7 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	ADDSCANRESULT(Check_Mutex);
 	// Remove HackShield 2024 ver by Riremito
 	ADDSCANRESULT(HackShield_NullPtr);
+	ADDSCANRESULT(HackShield_RunningCheck);
 	ADDSCANRESULT(HackShield_Packet);
 	if (result.back().info.VA) {
 		vmprotect = true;
@@ -1798,6 +1850,7 @@ std::vector<AddrInfoEx> AobScannerMain(Frost &f) {
 	//ADDSCANRESULT(EasyMethod_Init);
 	// Remove Anti Hack
 	ADDSCANRESULT(DR_Check);
+	ADDSCANRESULT(HideDll);
 	ADDSCANRESULT(RemoveMSCRC_Main_RenderFrame);
 	ADDSCANRESULT(RemoveMSCRC_Main_Run_LeaveVM);
 	ADDSCANRESULT(RemoveMSCRC_OnEnterField_EnterVM);
