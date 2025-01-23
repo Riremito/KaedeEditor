@@ -56,7 +56,7 @@ bool AobScanThread(Alice &a) {
 	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
 	a.SetText(TEXTAREA_INFO, L"");
 
-	INFO_ADD(L"Loading...");
+	INFO_ADD(L"// Loading...");
 
 	std::vector<std::wstring> vAAScript;
 	std::vector<std::wstring> vIDCScript;
@@ -109,7 +109,7 @@ bool AobScanThread(Alice &a) {
 		INFO_ADD(v);
 	}
 	INFO_ADD(L"");
-	INFO_ADD(L"OK!");
+	INFO_ADD(L"// OK!");
 
 	UnlockButton(a, BUTTON_AOB_SCAN);
 	return true;
@@ -137,7 +137,9 @@ bool VMScanThread(Alice &a) {
 	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
 	a.SetText(TEXTAREA_INFO, L"");
 
-	INFO_ADD(L"Loading...");
+	INFO_ADD(L"// Loading...");
+	std::vector<std::wstring> vInfo;
+
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
 	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
 		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
@@ -145,9 +147,19 @@ bool VMScanThread(Alice &a) {
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
+
+		if (v.info.VA) {
+			vInfo.push_back(wVA + L" // " + v.tag);
+		}
 	}
 
-	INFO_ADD(L"OK!");
+	INFO_ADD(L"");
+	INFO_ADD(L"// Info");
+	for (auto &v : vInfo) {
+		INFO_ADD(v);
+	}
+
+	INFO_ADD(L"// OK!");
 	UnlockButton(a, BUTTON_VM_SCAN);
 	return true;
 }
@@ -163,7 +175,7 @@ bool PolyScanThread(Alice &a) {
 
 	if (f.Isx64()) {
 		check = false;
-		INFO_ADD(L"x64 is not supported.");
+		INFO_ADD(L"// x64 is not supported.");
 	}
 
 	if (check) {
@@ -213,16 +225,16 @@ bool StackClearScanThread(Alice &a) {
 
 	if (f.Isx64()) {
 		check = false;
-		INFO_ADD(L"x64 is not supported.");
+		INFO_ADD(L"// x64 is not supported.");
 	}
 
 	if (!GetDEVM()) {
 		check = false;
-		INFO_ADD(L"not unvirtualized.");
+		INFO_ADD(L"// not unvirtualized.");
 	}
 
 	if (check) {
-		INFO_ADD(L"Loading...");
+		INFO_ADD(L"// Loading...");
 		std::vector<std::wstring> vAAScript;
 		for (auto &v : StackClearScanner(f)) {
 			std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
@@ -245,7 +257,7 @@ bool StackClearScanThread(Alice &a) {
 		for (auto &v : vAAScript) {
 			INFO_ADD(v);
 		}
-		INFO_ADD(L"OK!");
+		INFO_ADD(L"// OK!");
 	}
 
 	UnlockButton(a, BUTTON_STACK_CLEAR_SCAN);
@@ -371,7 +383,7 @@ bool OnNotify(Alice &a, int nIDDlgItem) {
 bool OnDropFile(Alice &a, wchar_t *drop) {
 	INFO_CLEAR();
 	if (!Dropped_Close()) {
-		INFO_ADD(L"Error! Previous task is still running.");
+		INFO_ADD(L"// Error! Previous task is still running.");
 		return false;
 	}
 
@@ -380,7 +392,7 @@ bool OnDropFile(Alice &a, wchar_t *drop) {
 	Dropped_Open(drop);
 
 	if (!Dropped_Parse()) {
-		INFO_ADD(L"Error! Unable to open PE file.");
+		INFO_ADD(L"// Error! Unable to open PE file.");
 		return false;
 	}
 
