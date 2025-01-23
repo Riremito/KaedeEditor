@@ -1,5 +1,6 @@
 ﻿#include"KaedeEditor.h"
 
+Alice *alice_global = NULL;
 Frost *frost_dropped = NULL;
 int frost_ref_count = 0;
 
@@ -46,77 +47,16 @@ bool Dropped_Parse() {
 }
 
 // thread task checks
-void UnlockButton(Alice &a, int nIDDlgItem) {
+void UnlockButton(int nIDDlgItem) {
+	Alice &a = *alice_global;
 	frost_ref_count--;
 	a.ChangeState(nIDDlgItem, TRUE);
 }
 
-bool AobScanThread(Alice &a) {
+// test
+bool AobScanTestThread() {
 	Frost &f = *frost_dropped;
-	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
-	INFO_ADD(L"// Loading...");
-
-	std::vector<std::wstring> vAAScript;
-	std::vector<std::wstring> vIDCScript;
-	std::vector<std::wstring> vInfo;
-
-	vAAScript.push_back(L"[Enable]");
-	for (auto &v : f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f)) {
-		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
-		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
-		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
-		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
-		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
-		if (v.info.VA) {
-			if (v.patch.length()) {
-				// AA Script (CE)
-				vAAScript.push_back(L"// " + v.tag);
-				vAAScript.push_back(wVA + L":");
-				if (memcmp(v.patch.c_str(), L"jmp ", 8) == 0) {
-					vAAScript.push_back(v.patch);
-				}
-				else {
-					vAAScript.push_back(L"db " + v.patch);
-				}
-				vAAScript.push_back(L""); // LF
-				continue;
-			}
-			else {
-				// Info (IDA)
-				if (v.tag.length() && v.tag.at(0) == L'?') {
-					vIDCScript.push_back(L"set_name(0x" + wVA + L", \"" + v.tag + L"\");");
-					continue;
-				}
-			}
-		}
-		vInfo.push_back(wVA + L" = " + v.tag);
-	}
-	vAAScript.push_back(L"[Disable]");
-	INFO_ADD(L"// AA Script (CE)");
-	for (auto &v : vAAScript) {
-		INFO_ADD(v);
-	}
-	INFO_ADD(L"");
-	INFO_ADD(L"// IDC Script (IDA)");
-	for (auto &v : vIDCScript) {
-		INFO_ADD(v);
-	}
-	INFO_ADD(L"");
-	INFO_ADD(L"// Info");
-	for (auto &v : vInfo) {
-		INFO_ADD(v);
-	}
-	INFO_ADD(L"");
-	INFO_ADD(L"// OK!");
-
-	UnlockButton(a, BUTTON_AOB_SCAN);
-	return true;
-}
-
-bool AobScanTestThread(Alice &a) {
-	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
 	a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"Scanning...");
 
 	ULONG_PTR res_addr = f.AobScan(a.GetText(EDIT_AOB_SCAN_TEST)).VA;
@@ -127,69 +67,26 @@ bool AobScanTestThread(Alice &a) {
 		a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"ERROR");
 	}
 
-	UnlockButton(a, BUTTON_AOB_SCAN_TEST);
+	UnlockButton(BUTTON_AOB_SCAN_TEST);
 	return true;
 }
 
-bool VMScanThread(Alice &a) {
+// Scanner
+bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx) {
+	Alice &a = *alice_global;
 	Frost &f = *frost_dropped;
 
-	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
-	INFO_ADD(L"// Loading...");
+	std::vector<std::wstring> vAAScript;
+	std::vector<std::wstring> vIDCScript;
 	std::vector<std::wstring> vInfo;
 
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
-	for (auto &v : f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section)) {
+	for (auto &v : vAddrInfoEx) {
 		std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
-
 		if (v.info.VA) {
-			vInfo.push_back(wVA + L" // " + v.tag);
-		}
-	}
-
-	INFO_ADD(L"");
-	INFO_ADD(L"// Info");
-	for (auto &v : vInfo) {
-		INFO_ADD(v);
-	}
-
-	INFO_ADD(L"// OK!");
-	UnlockButton(a, BUTTON_VM_SCAN);
-	return true;
-}
-
-bool PolyScanThread(Alice &a) {
-	Frost &f = *frost_dropped;
-
-	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
-	//INFO_ADD(L"Loading...");
-	bool check = true;
-
-	if (f.Isx64()) {
-		check = false;
-		INFO_ADD(L"// x64 is not supported.");
-	}
-
-	if (check) {
-		std::vector<std::wstring> vAAScript;
-
-		int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
-		for (auto &v : PolyScanner(f, vm_section)) {
-			std::wstring wVA = v.info.VA ? DWORDtoString((DWORD)v.info.VA) : L"ERROR";
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
-
-
 			if (v.patch.length()) {
 				// AA Script (CE)
 				vAAScript.push_back(L"// " + v.tag);
@@ -200,67 +97,101 @@ bool PolyScanThread(Alice &a) {
 				else {
 					vAAScript.push_back(L"db " + v.patch);
 				}
-				vAAScript.push_back(L""); // LF
+				vAAScript.push_back(L"");
 				continue;
 			}
-		}
-		INFO_ADD(L"// AA Script (CE)");
-		for (auto &v : vAAScript) {
-			INFO_ADD(v);
-		}
-		INFO_ADD(L"// OK!");
-	}
-
-	UnlockButton(a, BUTTON_POLY_SCAN);
-	return true;
-}
-
-bool StackClearScanThread(Alice &a) {
-	Frost &f = *frost_dropped;
-
-	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
-	a.SetText(TEXTAREA_INFO, L"");
-
-	bool check = true;
-
-	if (f.Isx64()) {
-		check = false;
-		INFO_ADD(L"// x64 is not supported.");
-	}
-
-	if (!GetDEVM()) {
-		check = false;
-		INFO_ADD(L"// not unvirtualized.");
-	}
-
-	if (check) {
-		INFO_ADD(L"// Loading...");
-		std::vector<std::wstring> vAAScript;
-		for (auto &v : StackClearScanner(f)) {
-			std::wstring wVA = v.info.VA ? (f.Isx64() ? QWORDtoString(v.info.VA) : DWORDtoString((DWORD)v.info.VA)) : L"ERROR";
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_VA, wVA);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_NAME_TAG, v.tag);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
-			a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
-			if (v.info.VA) {
-				if (v.patch.length()) {
-					// AA Script (CE)
-					vAAScript.push_back(L"// " + v.tag);
-					vAAScript.push_back(wVA + L":");
-					vAAScript.push_back(L"db " + v.patch);
-					vAAScript.push_back(L""); // LF
+			else {
+				// IDC Script (IDA)
+				if (v.tag.length() && v.tag.at(0) == L'?') {
+					vIDCScript.push_back(L"set_name(0x" + wVA + L", \"" + v.tag + L"\");");
 					continue;
 				}
 			}
 		}
-		INFO_ADD(L"// AA Script (CE)");
-		for (auto &v : vAAScript) {
-			INFO_ADD(v);
-		}
-		INFO_ADD(L"// OK!");
+		vInfo.push_back(wVA + L" // " + v.tag);
 	}
 
-	UnlockButton(a, BUTTON_STACK_CLEAR_SCAN);
+	INFO_ADD(L"// Kaede Editor");
+	INFO_ADD(L"// File = " + a.GetText(EDIT_PATH));
+	INFO_ADD(L"// AA Script (CE)");
+	for (auto &v : vAAScript) {
+		INFO_ADD(v);
+	}
+	INFO_ADD(L"");
+	INFO_ADD(L"");
+	INFO_ADD(L"// IDC Script (IDA)");
+	for (auto &v : vIDCScript) {
+		INFO_ADD(v);
+	}
+	INFO_ADD(L"");
+	INFO_ADD(L"");
+	INFO_ADD(L"// Info");
+	for (auto &v : vInfo) {
+		INFO_ADD(v);
+	}
+	INFO_ADD(L"");
+	INFO_ADD(L"");
+	return true;
+}
+
+// Thread
+bool AobScanThread() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f);
+
+	RunAobScanner(vaix);
+	UnlockButton(BUTTON_AOB_SCAN);
+	return true;
+}
+
+bool VMScanThread() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section);
+
+	RunAobScanner(vaix);
+	UnlockButton(BUTTON_VM_SCAN);
+	return true;
+}
+
+bool PolyScanThread() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
+	// x86 Only
+	if (f.Isx64()) {
+		INFO_ADD(L"// x64 is not supported.");
+	}
+	else {
+		std::vector<AddrInfoEx> vaix = PolyScanner(f, vm_section);
+		RunAobScanner(vaix);
+	}
+
+	UnlockButton(BUTTON_POLY_SCAN);
+	return true;
+}
+
+bool StackClearScanThread() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	// x86 Only
+	if (f.Isx64()) {
+		INFO_ADD(L"// x64 is not supported.");
+	}
+	else {
+		// DEVM Only
+		if (GetDEVM()) {
+			std::vector<AddrInfoEx> vaix = StackClearScanner(f);
+			RunAobScanner(vaix);
+		}
+		else {
+			INFO_ADD(L"// not unvirtualized.");
+		}
+	}
+
+	UnlockButton(BUTTON_STACK_CLEAR_SCAN);
 	return true;
 }
 
@@ -298,9 +229,12 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 		return false;
 	}
 
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	INFO_CLEAR();
+
 	// scan thread
 	frost_ref_count++;
-	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)thread_func, (LPVOID)&a, NULL, NULL);
+	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)thread_func, NULL, NULL, NULL);
 	if (hThread) {
 		CloseHandle(hThread);
 	}
@@ -311,6 +245,7 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 // Main Window
 #define AR_HEIGHT 240
 bool OnCreate(Alice &a) {
+	alice_global = &a;
 	// Aob Scanner
 	a.ListView(LISTVIEW_AOB_SCAN_RESULT, 3, 3, (VIEWER_WIDTH - 6), AR_HEIGHT);
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"VA", 120);
