@@ -2,15 +2,6 @@
 #include"AobScan.h"
 #include"Formatter.h"
 
-bool flag_devm = true;
-void SetDEVM(bool flag) {
-	flag_devm = flag;
-}
-
-bool GetDEVM() {
-	return flag_devm;
-}
-
 // ===== REMOVE CHECKS =====
 AddrInfoEx Find_Check_Language(Frost &f) {
 	AddrInfoEx aix = { L"Check_Language", L"EB" };

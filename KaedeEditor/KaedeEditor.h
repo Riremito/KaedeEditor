@@ -7,6 +7,8 @@
 #include"Formatter.h"
 #include"AobScanner.h"
 
+void SetDEVM(bool flag);
+bool GetDEVM();
 
 #define VIEWER_WIDTH 800
 #define VIEWER_HEIGHT 600
@@ -18,17 +20,14 @@ enum SubControl {
 	TEXTAREA_INFO,
 	LISTVIEW_AOB_SCAN_RESULT,
 	EDIT_AOB_SCAN_RESULT_SELECTED,
-	BUTTON_AOB_SCAN,
-	EDIT_AOB_SCAN_TEST,
-	EDIT_AOB_SCAN_TEST_RESULT,
-	BUTTON_AOB_SCAN_TEST,
-	BUTTON_AOB_SCAN_TEST_FULL,
+	CHECK_DEVM,
+	COMBOBOX_SCANNER,
+	BUTTON_AOBSCAN,
 	STATIC_VM_SECTION,
 	EDIT_VM_SECTION,
-	BUTTON_VM_SCAN,
-	BUTTON_POLY_SCAN,
-	BUTTON_STACK_CLEAR_SCAN,
-	CHECK_DEVM,
+	EDIT_TEST_SCAN,
+	BUTTON_TEST_SCAN,
+	CHECK_TEST_SCAN_ALL,
 };
 
 enum ListViewIndex {
@@ -36,6 +35,32 @@ enum ListViewIndex {
 	LVA_NAME_TAG,
 	LVA_MODE,
 	LVA_PATCH,
+};
+
+enum ScannerIndex {
+	SI_Main = 0,
+	SI_Self_Crash,
+	//SI_PacketFunctions,
+	//SI_OtherFunctions,
+	SI_Themida_VMProtect,
+	SI_ASProtect,
+	//SI_EMS_7X,
+	//SI_JMS_309,
+	//SI_StringPool,
+	SI_127_0_0_1,
+};
+
+const std::wstring ScannerList[] = {
+	L"Main",
+	L"Self Crash",
+	//L"Packet Functions",
+	//L"Other Functions",
+	L"Themida & VMProtect",
+	L"ASProtect",
+	//L"EMS v7X EntryPoint",
+	//L"JMS v309+",
+	//L"StringPool",
+	L"127.0.0.1",
 };
 
 #define INFO_ADD(str) a.AddText(TEXTAREA_INFO, str)

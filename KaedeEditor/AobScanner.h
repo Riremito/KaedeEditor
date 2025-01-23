@@ -3,10 +3,6 @@
 
 #include"Frost.h"
 
-
-void SetDEVM(bool flag);
-bool GetDEVM();
-
 typedef struct {
 	std::wstring tag;
 	std::wstring patch;
@@ -22,4 +18,5 @@ std::vector<AddrInfoEx> StackClearScanner(Frost &f);
 std::vector<AddrInfoEx> AobScannerMain64(Frost &f);
 std::vector<AddrInfoEx> VMScanner64(Frost &f, int vm_section64);
 
+std::vector<AddrInfoEx> TestScan(Frost &f, std::wstring wAob, bool isAll = false);
 #endif

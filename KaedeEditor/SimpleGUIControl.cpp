@@ -214,7 +214,7 @@ LRESULT Alice::CheckBoxStatus(size_t nIDDlgItem) {
 
 
 bool Alice::ComboBoxAdd(size_t nIDDlgItem, std::wstring wText) {
-	SendDlgItemMessageW(main_hwnd, (int)nIDDlgItem, CB_INSERTSTRING, 0, (LPARAM)wText.c_str());
+	SendDlgItemMessageW(main_hwnd, (int)nIDDlgItem, CB_INSERTSTRING, -1, (LPARAM)wText.c_str());
 	return true;
 }
 

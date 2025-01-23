@@ -1,5 +1,14 @@
 ﻿#include"KaedeEditor.h"
 
+bool flag_devm = true;
+void SetDEVM(bool flag) {
+	flag_devm = flag;
+}
+
+bool GetDEVM() {
+	return flag_devm;
+}
+
 Alice *alice_global = NULL;
 Frost *frost_dropped = NULL;
 int frost_ref_count = 0;
@@ -47,32 +56,21 @@ bool Dropped_Parse() {
 }
 
 // thread task checks
-void UnlockButton(int nIDDlgItem) {
+void ScanButtonLock(int nIDDlgItem) {
+	Alice &a = *alice_global;
+	frost_ref_count++;
+	a.ChangeState(nIDDlgItem, FALSE);
+}
+
+void ScanButtonUnlock(int nIDDlgItem) {
 	Alice &a = *alice_global;
 	frost_ref_count--;
 	a.ChangeState(nIDDlgItem, TRUE);
 }
 
-// test
-bool AobScanTestThread() {
-	Frost &f = *frost_dropped;
-	Alice &a = *alice_global;
-	a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"Scanning...");
-
-	ULONG_PTR res_addr = f.AobScan(a.GetText(EDIT_AOB_SCAN_TEST)).VA;
-	if (res_addr) {
-		a.SetText(EDIT_AOB_SCAN_TEST_RESULT, f.Isx64() ? QWORDtoString(res_addr) : DWORDtoString((DWORD)res_addr));
-	}
-	else {
-		a.SetText(EDIT_AOB_SCAN_TEST_RESULT, L"ERROR");
-	}
-
-	UnlockButton(BUTTON_AOB_SCAN_TEST);
-	return true;
-}
 
 // Scanner
-bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx) {
+bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx, int nIDDlgItem) {
 	Alice &a = *alice_global;
 	Frost &f = *frost_dropped;
 
@@ -131,6 +129,8 @@ bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx) {
 	}
 	INFO_ADD(L"");
 	INFO_ADD(L"");
+
+	ScanButtonUnlock(nIDDlgItem);
 	return true;
 }
 
@@ -140,8 +140,7 @@ bool AobScanThread() {
 	Alice &a = *alice_global;
 	std::vector<AddrInfoEx> vaix = f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f);
 
-	RunAobScanner(vaix);
-	UnlockButton(BUTTON_AOB_SCAN);
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
 }
 
@@ -151,31 +150,31 @@ bool VMScanThread() {
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
 	std::vector<AddrInfoEx> vaix = f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section);
 
-	RunAobScanner(vaix);
-	UnlockButton(BUTTON_VM_SCAN);
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
 }
 
 bool PolyScanThread() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
 	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
 	// x86 Only
 	if (f.Isx64()) {
 		INFO_ADD(L"// x64 is not supported.");
 	}
 	else {
-		std::vector<AddrInfoEx> vaix = PolyScanner(f, vm_section);
-		RunAobScanner(vaix);
+		vaix = PolyScanner(f, vm_section);
 	}
 
-	UnlockButton(BUTTON_POLY_SCAN);
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
 }
 
 bool StackClearScanThread() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
 	// x86 Only
 	if (f.Isx64()) {
 		INFO_ADD(L"// x64 is not supported.");
@@ -183,41 +182,50 @@ bool StackClearScanThread() {
 	else {
 		// DEVM Only
 		if (GetDEVM()) {
-			std::vector<AddrInfoEx> vaix = StackClearScanner(f);
-			RunAobScanner(vaix);
+			vaix = StackClearScanner(f);
 		}
 		else {
 			INFO_ADD(L"// not unvirtualized.");
 		}
 	}
 
-	UnlockButton(BUTTON_STACK_CLEAR_SCAN);
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
+// test
+bool TestScanWrapper() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	INFO_CLEAR();
+	INFO_ADD(L"// Test Scan");
+	ScanButtonLock(BUTTON_TEST_SCAN);
+	vaix = TestScan(f, a.GetText(EDIT_TEST_SCAN), a.CheckBoxStatus(CHECK_TEST_SCAN_ALL));
+	RunAobScanner(vaix, BUTTON_TEST_SCAN);
 	return true;
 }
 
 
 // thread
-bool RunScanner(Alice &a, int nIDDlgItem) {
+bool RunScanner(Alice &a, ScannerIndex si) {
 	LPTHREAD_START_ROUTINE thread_func = NULL;
-	switch (nIDDlgItem) {
-	case BUTTON_AOB_SCAN: {
+	switch (si) {
+	case SI_Main: {
 		thread_func = (decltype(thread_func))AobScanThread;
 		break;
 	}
-	case BUTTON_AOB_SCAN_TEST: {
-		thread_func = (decltype(thread_func))AobScanTestThread;
+	case SI_Self_Crash: {
+		thread_func = (decltype(thread_func))StackClearScanThread;
 		break;
 	}
-	case BUTTON_VM_SCAN: {
+	case SI_Themida_VMProtect: {
 		thread_func = (decltype(thread_func))VMScanThread;
 		break;
 	}
-	case BUTTON_POLY_SCAN: {
+	case SI_ASProtect: {
 		thread_func = (decltype(thread_func))PolyScanThread;
-		break;
-	}
-	case BUTTON_STACK_CLEAR_SCAN: {
-		thread_func = (decltype(thread_func))StackClearScanThread;
 		break;
 	}
 	default: {
@@ -228,12 +236,12 @@ bool RunScanner(Alice &a, int nIDDlgItem) {
 	if (!thread_func) {
 		return false;
 	}
+	ScanButtonLock(BUTTON_AOBSCAN);
 
 	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
 	INFO_CLEAR();
 
 	// scan thread
-	frost_ref_count++;
 	HANDLE hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)thread_func, NULL, NULL, NULL);
 	if (hThread) {
 		CloseHandle(hThread);
@@ -252,46 +260,52 @@ bool OnCreate(Alice &a) {
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"NameTag", 300);
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Mode", 100);
 	a.ListView_AddHeader(LISTVIEW_AOB_SCAN_RESULT, L"Patch", 200);
-	a.EditBox(EDIT_AOB_SCAN_RESULT_SELECTED, 3, (AR_HEIGHT + 10), L"", (VIEWER_WIDTH - 230));
-	a.Button(BUTTON_STACK_CLEAR_SCAN, L"StackClearScan", (VIEWER_WIDTH - 220), (AR_HEIGHT + 10), 100);
-	a.Button(BUTTON_AOB_SCAN, L"AobScan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 10), 100);
-	// Scan Test
-	a.EditBox(EDIT_AOB_SCAN_TEST, 3, (AR_HEIGHT + 30), L"", (VIEWER_WIDTH - 340));
-	a.EditBox(EDIT_AOB_SCAN_TEST_RESULT, (VIEWER_WIDTH - 330), (AR_HEIGHT + 30), L"", 100);
-	a.ReadOnly(EDIT_AOB_SCAN_TEST_RESULT);
-	a.Button(BUTTON_AOB_SCAN_TEST, L"ScanTest", (VIEWER_WIDTH - 220), (AR_HEIGHT + 30), 100);
-	//a.Button(BUTTON_AOB_SCAN_TEST_FULL, L"ScanTest(Full)", (VIEWER_WIDTH - 110), (AR_HEIGHT + 30), 100);
-	// VM Enter Scanner
-	a.CheckBox(CHECK_DEVM, L"unvirtualized", (VIEWER_WIDTH - 430), (AR_HEIGHT + 50), BST_CHECKED);
-	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 330), (AR_HEIGHT + 50));
-	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 220), (AR_HEIGHT + 50), L"3", 100);
-	a.Button(BUTTON_VM_SCAN, L"VM Enter Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 50), 100);
-	a.Button(BUTTON_POLY_SCAN, L"POLY Scan", (VIEWER_WIDTH - 110), (AR_HEIGHT + 70), 100);
 	// Info
 	a.TextArea(TEXTAREA_INFO, 3, 360, (VIEWER_WIDTH - 6), 200);
 	a.ReadOnly(TEXTAREA_INFO);
 	a.StaticText(STATIC_PATH, L"File Path :", 10, (VIEWER_HEIGHT - 30));
 	a.EditBox(EDIT_PATH, 80, (VIEWER_HEIGHT - 30), L"Please Drop File", (VIEWER_WIDTH - 90));
 	a.ReadOnly(EDIT_PATH);
+
+	// New
+	a.EditBox(EDIT_AOB_SCAN_RESULT_SELECTED, 3, (AR_HEIGHT + 10), L"", (VIEWER_WIDTH - 6));
+	a.ComboBox(COMBOBOX_SCANNER, (VIEWER_WIDTH - 3) - 150 - 110, (AR_HEIGHT + 30), 150);
+	a.Button(BUTTON_AOBSCAN, L"AobScan", (VIEWER_WIDTH - 3) - 100, (AR_HEIGHT + 30), 100);
+	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 3) - 100 - 110, (AR_HEIGHT + 50));
+	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 3) - 100, (AR_HEIGHT + 50), L"3", 100);
+	a.CheckBox(CHECK_DEVM, L"Unvirtualized", (VIEWER_WIDTH - 3) - 100, (AR_HEIGHT + 70), BST_CHECKED);
+
+	for (auto v : ScannerList) {
+		a.ComboBoxAdd(COMBOBOX_SCANNER, v);
+	}
+	a.ComboBoxSelect(COMBOBOX_SCANNER, 0);
+
+	// test
+	a.EditBox(EDIT_TEST_SCAN, 3, (AR_HEIGHT + 30), L"", 300);
+	a.Button(BUTTON_TEST_SCAN, L"TestScan", 310, (AR_HEIGHT + 30), 100);
+	a.CheckBox(CHECK_TEST_SCAN_ALL, L"All", 420, (AR_HEIGHT + 30));
 	return true;
 }
 
 // Button
 bool OnCommand(Alice &a, int nIDDlgItem) {
 	switch (nIDDlgItem) {
-	case BUTTON_AOB_SCAN:
-	case BUTTON_AOB_SCAN_TEST:
-	case BUTTON_VM_SCAN:
-	case BUTTON_POLY_SCAN:
-	case BUTTON_STACK_CLEAR_SCAN:
+	case BUTTON_AOBSCAN:
 	{
 		// file is not opened.
 		if (!frost_dropped) {
 			return false;
 		}
 		SetDEVM(a.CheckBoxStatus(CHECK_DEVM));
-		a.ChangeState(nIDDlgItem, FALSE);
-		RunScanner(a, nIDDlgItem);
+		ScannerIndex si = (ScannerIndex)a.ComboBoxSelected(COMBOBOX_SCANNER);
+		RunScanner(a, si);
+		return true;
+	}
+	case BUTTON_TEST_SCAN: {
+		if (!frost_dropped) {
+			return false;
+		}
+		TestScanWrapper();
 		return true;
 	}
 	default: {
