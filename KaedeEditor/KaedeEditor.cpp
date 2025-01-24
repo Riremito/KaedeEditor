@@ -144,34 +144,7 @@ bool AobScanThread() {
 	return true;
 }
 
-bool VMScanThread() {
-	Frost &f = *frost_dropped;
-	Alice &a = *alice_global;
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
-	std::vector<AddrInfoEx> vaix = f.Isx64() ? VMScanner64(f, vm_section) : VMScanner(f, vm_section);
-
-	RunAobScanner(vaix, BUTTON_AOBSCAN);
-	return true;
-}
-
-bool PolyScanThread() {
-	Frost &f = *frost_dropped;
-	Alice &a = *alice_global;
-	std::vector<AddrInfoEx> vaix;
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
-	// x86 Only
-	if (f.Isx64()) {
-		INFO_ADD(L"// x64 is not supported.");
-	}
-	else {
-		vaix = PolyScanner(f, vm_section);
-	}
-
-	RunAobScanner(vaix, BUTTON_AOBSCAN);
-	return true;
-}
-
-bool StackClearScanThread() {
+bool Thread_SelfCrash() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
 	std::vector<AddrInfoEx> vaix;
@@ -182,7 +155,7 @@ bool StackClearScanThread() {
 	else {
 		// DEVM Only
 		if (GetDEVM()) {
-			vaix = StackClearScanner(f);
+			vaix = Scanner_SelfCrash(f);
 		}
 		else {
 			INFO_ADD(L"// not unvirtualized.");
@@ -192,6 +165,34 @@ bool StackClearScanThread() {
 	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
 }
+
+bool Thread_Themida_VMProtect() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Themida_VMProtect64(f, vm_section) : Scanner_Themida_VMProtect(f, vm_section);
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
+bool Thread_ASProtect() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
+	// x86 Only
+	if (f.Isx64()) {
+		INFO_ADD(L"// x64 is not supported.");
+	}
+	else {
+		vaix = Scanner_ASProtect(f, vm_section);
+	}
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
 
 // test
 bool TestScanWrapper() {
@@ -217,15 +218,15 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 		break;
 	}
 	case SI_Self_Crash: {
-		thread_func = (decltype(thread_func))StackClearScanThread;
+		thread_func = (decltype(thread_func))Thread_SelfCrash;
 		break;
 	}
 	case SI_Themida_VMProtect: {
-		thread_func = (decltype(thread_func))VMScanThread;
+		thread_func = (decltype(thread_func))Thread_Themida_VMProtect;
 		break;
 	}
 	case SI_ASProtect: {
-		thread_func = (decltype(thread_func))PolyScanThread;
+		thread_func = (decltype(thread_func))Thread_ASProtect;
 		break;
 	}
 	default: {

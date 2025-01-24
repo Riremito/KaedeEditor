@@ -153,11 +153,14 @@
     <ClCompile Include="Formatter.cpp" />
     <ClCompile Include="Frost.cpp" />
     <ClCompile Include="KaedeEditor.cpp" />
+    <ClCompile Include="Scanner_ASProtect.cpp" />
+    <ClCompile Include="Scanner_SelfCrash.cpp" />
+    <ClCompile Include="Scanner_Themida_VMProtect.cpp" />
     <ClCompile Include="SimpleGUI.cpp" />
     <ClCompile Include="SimpleGUICallback.cpp" />
     <ClCompile Include="SimpleGUIControl.cpp" />
     <ClCompile Include="SimpleGUIListView.cpp" />
-    <ClCompile Include="AobScannerTest.cpp" />
+    <ClCompile Include="Scanner_Test.cpp" />
     <ClCompile Include="StringPool.cpp" />
   </ItemGroup>
   <ItemGroup>
