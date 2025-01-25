@@ -85,6 +85,13 @@ bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx, int nIDDlgItem) {
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_MODE, v.mode);
 		a.ListView_AddItem(LISTVIEW_AOB_SCAN_RESULT, LVA_PATCH, v.info.VA ? v.patch : L"ERROR");
 		if (v.info.VA) {
+			// IDC Script (IDA)
+			if (v.tag.length() && v.tag.at(0) == L'?') {
+				vIDCScript.push_back(L"set_name(0x" + wVA + L", \"" + v.tag + L"\");");
+				if (!v.patch.length()) {
+					continue;
+				}
+			}
 			if (v.patch.length()) {
 				// AA Script (CE)
 				vAAScript.push_back(L"// " + v.tag);
@@ -98,37 +105,36 @@ bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx, int nIDDlgItem) {
 				vAAScript.push_back(L"");
 				continue;
 			}
-			else {
-				// IDC Script (IDA)
-				if (v.tag.length() && v.tag.at(0) == L'?') {
-					vIDCScript.push_back(L"set_name(0x" + wVA + L", \"" + v.tag + L"\");");
-					continue;
-				}
-			}
 		}
 		vInfo.push_back(wVA + L" // " + v.tag);
 	}
 
 	INFO_ADD(L"// Kaede Editor");
 	INFO_ADD(L"// File = " + a.GetText(EDIT_PATH));
-	INFO_ADD(L"// AA Script (CE)");
-	for (auto &v : vAAScript) {
-		INFO_ADD(v);
+	if (vAAScript.size()) {
+		INFO_ADD(L"// AA Script (CE)");
+		for (auto &v : vAAScript) {
+			INFO_ADD(v);
+		}
+		INFO_ADD(L"");
+		INFO_ADD(L"");
 	}
-	INFO_ADD(L"");
-	INFO_ADD(L"");
-	INFO_ADD(L"// IDC Script (IDA)");
-	for (auto &v : vIDCScript) {
-		INFO_ADD(v);
+	if (vIDCScript.size()) {
+		INFO_ADD(L"// IDC Script (IDA)");
+		for (auto &v : vIDCScript) {
+			INFO_ADD(v);
+		}
+		INFO_ADD(L"");
+		INFO_ADD(L"");
 	}
-	INFO_ADD(L"");
-	INFO_ADD(L"");
-	INFO_ADD(L"// Info");
-	for (auto &v : vInfo) {
-		INFO_ADD(v);
+	if (vInfo.size()) {
+		INFO_ADD(L"// Info");
+		for (auto &v : vInfo) {
+			INFO_ADD(v);
+		}
+		INFO_ADD(L"");
+		INFO_ADD(L"");
 	}
-	INFO_ADD(L"");
-	INFO_ADD(L"");
 
 	ScanButtonUnlock(nIDDlgItem);
 	return true;

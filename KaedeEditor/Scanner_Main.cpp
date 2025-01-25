@@ -107,7 +107,7 @@ AddrInfoEx Find_Check_Mutex(Frost &f) {
 
 // ===== REMOVE HACKSHIELD =====
 AddrInfoEx Find_HackShield_Init(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_Init", L"31 C0 C2 04 00" };
+	AddrInfoEx aix = { L"?StartModule@CSecurityClient@@QAEXPAUHWND__@@@Z", L"31 C0 C2 04 00" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -139,7 +139,7 @@ AddrInfoEx Find_HackShield_Init(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_EHSvc_Loader_1(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_EHSvc_Loader_1", L"31 C0 C2 10 03" };
+	AddrInfoEx aix = { L"__AhnHS_StartMonitorA@784", L"31 C0 C2 10 03" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -153,7 +153,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_1(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_EHSvc_Loader_2", L"31 C0 C2 18 00" };
+	AddrInfoEx aix = { L"__AhnHS_InitializeA@24", L"31 C0 C2 18 00" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -179,7 +179,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_HeartBeat(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_HeatBeat", L"31 C0 C2 04 00" };
+	AddrInfoEx aix = { L"?OnCheckClientIntegrityRequest@CSecurityClient@@AAEXAAVCInPacket@@@Z", L"31 C0 C2 04 00" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -193,7 +193,7 @@ AddrInfoEx Find_HackShield_HeartBeat(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_MKD25tray(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_MKD25tray", L"31 C0 C3" };
+	AddrInfoEx aix = { L"?StartKeyCrypt@CSecurityClient@@QAEXXZ", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -225,23 +225,9 @@ AddrInfoEx Find_HackShield_MKD25tray(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_Autoup(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_Autoup", L"31 C0 C3" };
+	AddrInfoEx aix = { L"?ClearKeyCrypt@CSecurityClient@@QAEXXZ", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
-
-	/*
-	res = f.AobScan(L"56 8B F1 83 7E 14 00 74 16 68 ?? ?? ?? ?? 68 80 00 00 00 90 E8 ?? ?? ?? ?? 83 66 14 00 59 59 5E C3");
-	if (res.VA) {
-		mode = L"JMS v164.0-1";
-		return aix;
-	}
-
-	res = f.AobScan(L"56 8B F1 83 7E 14 00 74 16 68 ?? ?? ?? ?? 68 80 00 00 00 E8 ?? ?? ?? ?? 90 83 66 14 00 59 59 5E C3");
-	if (res.VA) {
-		mode = L"JMS v164.0-2";
-		return aix;
-	}
-	*/
 
 	res = f.AobScan(L"56 8B F1 83 7E 14 00 74 ?? 68 ?? ?? ?? ?? 68 80 00 00 00 FF 15");
 	if (res.VA) {
@@ -265,7 +251,7 @@ AddrInfoEx Find_HackShield_Autoup(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_ASPLunchr(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_ASPLunchr", L"31 C0 C3" };
+	AddrInfoEx aix = { L"?InitKeyCrypt@CSecurityClient@@QAEXXZ", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -297,7 +283,7 @@ AddrInfoEx Find_HackShield_ASPLunchr(Frost &f) {
 }
 
 AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_HSUpdate", L"31 C0 C3" };
+	AddrInfoEx aix = { L"?InitModule@CSecurityClient@@QAEXXZ", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -334,6 +320,7 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 	return aix;
 }
 // ===== REMOVE HACKSHIELD =====
+// ??0CSecurityClient@@QAE@XZ inside
 AddrInfoEx Find_HackShield_NullPtr(Frost &f) {
 	AddrInfoEx aix = { L"HackShield_NullPtr" , L"31 C9 90" };
 	std::wstring &mode = aix.mode;
@@ -370,7 +357,7 @@ AddrInfoEx Find_HackShield_NullPtr(Frost &f) {
 
 
 AddrInfoEx Find_HackShield_RunningCheck(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_RunningCheck" , L"31 C0 C3" };
+	AddrInfoEx aix = { L"?Update@CSecurityClient@@QAEXXZ" , L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -387,7 +374,7 @@ AddrInfoEx Find_HackShield_RunningCheck(Frost &f) {
 
 // for vmprotect era
 AddrInfoEx Find_HackShield_Packet(Frost &f) {
-	AddrInfoEx aix = { L"HackShield_Packet" , L"jmp funcion_restore_code_section" };
+	AddrInfoEx aix = { L"?SendFullMemoryCheckResult@CClientSocket@@IAEXXZ" , L"jmp funcion_restore_code_section" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -445,7 +432,9 @@ bool Find_Addr_EasyMethod(Frost &f, std::vector<AddrInfoEx> &result) {
 	}
 
 	// start and stop
+	// ?StopKeyCrypt@CSecurityClient@@QAEXXZ
 	result.push_back(AddrInfoEx{ L"EasyMethod_StartKeyCrypt", L"31 C0 C3", L"Easy", f.GetRefAddrRelative(res.VA, 0x01) });
+	// ?StartKeyCrypt@CSecurityClient@@QAEXXZ
 	result.push_back(AddrInfoEx{ L"EasyMethod_StopKeyCrypt", L"31 C0 C3", L"Easy", f.GetRefAddrRelative(res.VA + 0x07, 0x01) });
 
 	// init
@@ -566,7 +555,7 @@ AddrInfoEx Find_EasyMethod_StopKeyCrypt(Frost &f) {
 
 // ===== REMOVE ANTI HACK =====
 AddrInfoEx Find_DR_Check(Frost &f) {
-	AddrInfoEx aix = { L"DR_Check" , L"31 C0 C3" };
+	AddrInfoEx aix = { L"?DR_check@@YAHPAU_DR_INFO@@PAKPAUHINSTANCE__@@@Z" , L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -586,7 +575,7 @@ AddrInfoEx Find_DR_Check(Frost &f) {
 }
 
 AddrInfoEx Find_HideDll(Frost &f) {
-	AddrInfoEx aix = { L"HideDll" , L"31 C0 C3" };
+	AddrInfoEx aix = { L"?HideDll@@YAXPAUHINSTANCE__@@@Z" , L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -783,7 +772,7 @@ AddrInfoEx Find_Launcher(Frost &f) {
 }
 
 AddrInfoEx Find_Ad(Frost &f) {
-	AddrInfoEx aix = { L"Ad", L"B8 01 00 00 00 C3"};
+	AddrInfoEx aix = { L"?ShowADBalloon@@YAHABUADBalloonParam@@@Z", L"B8 01 00 00 00 C3"};
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
@@ -810,6 +799,12 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 53 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 8A 5C 24 ?? 8A 44 24 ?? 88 5E ?? 88 46 ?? 80 FB 01 75");
 	if (res.VA) {
 		mode = L"JMS v194.0";
+		return aix;
+	}
+
+	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B E9 33 D2 89 54 24 ?? 8B 0D ?? ?? ?? ?? 85 C9 74");
+	if (res.VA) {
+		mode = L"JMS v302.0";
 		return aix;
 	}
 
