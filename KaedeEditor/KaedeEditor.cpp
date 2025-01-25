@@ -135,10 +135,26 @@ bool RunAobScanner(std::vector<AddrInfoEx> &vAddrInfoEx, int nIDDlgItem) {
 }
 
 // Thread
-bool AobScanThread() {
+bool Thread_Main() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
-	std::vector<AddrInfoEx> vaix = f.Isx64() ? AobScannerMain64(f) : AobScannerMain(f);
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Main64(f) : Scanner_Main(f);
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
+bool Thread_Client_Edit() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
+	// x86 Only
+	if (f.Isx64()) {
+		INFO_ADD(L"// x64 is not supported.");
+	}
+	else {
+		vaix = Scanner_Client_Edit(f);
+	}
 
 	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
@@ -193,32 +209,38 @@ bool Thread_ASProtect() {
 	return true;
 }
 
-
-// test
-bool TestScanWrapper() {
+bool Thread_Functions_Packet() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
-	std::vector<AddrInfoEx> vaix;
-	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
-	INFO_CLEAR();
-	INFO_ADD(L"// Test Scan");
-	ScanButtonLock(BUTTON_TEST_SCAN);
-	vaix = TestScan(f, a.GetText(EDIT_TEST_SCAN), a.CheckBoxStatus(CHECK_TEST_SCAN_ALL));
-	RunAobScanner(vaix, BUTTON_TEST_SCAN);
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Functions_Packet64(f) : Scanner_Functions_Packet(f);
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
+bool Thread_Functions_Others() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Functions_Others64(f) : Scanner_Functions_Others(f);
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
 	return true;
 }
 
 
-// thread
 bool RunScanner(Alice &a, ScannerIndex si) {
 	LPTHREAD_START_ROUTINE thread_func = NULL;
 	switch (si) {
 	case SI_Main: {
-		thread_func = (decltype(thread_func))AobScanThread;
+		thread_func = (decltype(thread_func))Thread_Main;
 		break;
 	}
 	case SI_Self_Crash: {
 		thread_func = (decltype(thread_func))Thread_SelfCrash;
+		break;
+	}
+	case SI_Client_Edit: {
+		thread_func = (decltype(thread_func))Thread_Client_Edit;
 		break;
 	}
 	case SI_Themida_VMProtect: {
@@ -227,6 +249,14 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 	}
 	case SI_ASProtect: {
 		thread_func = (decltype(thread_func))Thread_ASProtect;
+		break;
+	}
+	case SI_Functions_Packet: {
+		thread_func = (decltype(thread_func))Thread_Functions_Packet;
+		break;
+	}
+	case SI_Functions_Others: {
+		thread_func = (decltype(thread_func))Thread_Functions_Others;
 		break;
 	}
 	default: {
@@ -250,6 +280,18 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 	return true;
 }
 
+bool TestScanWrapper() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
+	a.ListView_Clear(LISTVIEW_AOB_SCAN_RESULT);
+	INFO_CLEAR();
+	INFO_ADD(L"// Test Scan");
+	ScanButtonLock(BUTTON_TEST_SCAN);
+	vaix = TestScan(f, a.GetText(EDIT_TEST_SCAN), a.CheckBoxStatus(CHECK_TEST_SCAN_ALL));
+	RunAobScanner(vaix, BUTTON_TEST_SCAN);
+	return true;
+}
 
 // Main Window
 #define AR_HEIGHT 240

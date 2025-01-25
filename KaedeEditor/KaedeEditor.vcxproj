@@ -148,12 +148,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AobScan.cpp" />
-    <ClCompile Include="AobScanner.cpp" />
-    <ClCompile Include="AobScanner64.cpp" />
+    <ClCompile Include="Scanner_Main.cpp" />
+    <ClCompile Include="Scanner_Main64.cpp" />
     <ClCompile Include="Formatter.cpp" />
     <ClCompile Include="Frost.cpp" />
     <ClCompile Include="KaedeEditor.cpp" />
     <ClCompile Include="Scanner_ASProtect.cpp" />
+    <ClCompile Include="Scanner_Client_Edit.cpp" />
+    <ClCompile Include="Scanner_Functions_Others.cpp" />
+    <ClCompile Include="Scanner_Functions_Others64.cpp" />
+    <ClCompile Include="Scanner_Functions_Packet.cpp" />
+    <ClCompile Include="Scanner_Functions_Packet64.cpp" />
     <ClCompile Include="Scanner_SelfCrash.cpp" />
     <ClCompile Include="Scanner_Themida_VMProtect.cpp" />
     <ClCompile Include="SimpleGUI.cpp" />

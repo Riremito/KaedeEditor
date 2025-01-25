@@ -40,26 +40,28 @@ enum ListViewIndex {
 enum ScannerIndex {
 	SI_Main = 0,
 	SI_Self_Crash,
-	//SI_PacketFunctions,
-	//SI_OtherFunctions,
+	SI_Client_Edit,
 	SI_Themida_VMProtect,
 	SI_ASProtect,
 	//SI_EMS_7X,
 	//SI_JMS_309,
 	//SI_StringPool,
+	SI_Functions_Packet,
+	SI_Functions_Others,
 	SI_127_0_0_1,
 };
 
 const std::wstring ScannerList[] = {
 	L"Main",
 	L"Self Crash",
-	//L"Packet Functions",
-	//L"Other Functions",
+	L"Client Edit",
 	L"Themida & VMProtect",
 	L"ASProtect",
 	//L"EMS v7X EntryPoint",
 	//L"JMS v309+",
 	//L"StringPool",
+	L"Functions - Packet",
+	L"Functions - Others",
 	L"127.0.0.1",
 };
 
