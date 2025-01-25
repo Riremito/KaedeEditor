@@ -31,6 +31,8 @@ std::vector<AddrInfoEx> Scanner_Functions_Packet64(Frost &f);
 std::vector<AddrInfoEx> Scanner_Functions_Others(Frost &f);
 std::vector<AddrInfoEx> Scanner_Functions_Others64(Frost &f);
 
+std::vector<AddrInfoEx> Scanner_127_0_0_1(Frost &f);
+
 std::vector<AddrInfoEx> TestScan(Frost &f, std::wstring wAob, bool isAll = false);
 
 #endif

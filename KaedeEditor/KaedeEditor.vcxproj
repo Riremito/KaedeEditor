@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AobScan.cpp" />
+    <ClCompile Include="Scanner_127_0_0_1.cpp" />
     <ClCompile Include="Scanner_Main.cpp" />
     <ClCompile Include="Scanner_Main64.cpp" />
     <ClCompile Include="Formatter.cpp" />

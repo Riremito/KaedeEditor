@@ -227,6 +227,18 @@ bool Thread_Functions_Others() {
 	return true;
 }
 
+bool Thread_127_0_0_1() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix = Scanner_127_0_0_1(f);
+
+	if (!vaix.size()) {
+		INFO_ADD(L"// 127.0.0.1 is not found.");
+	}
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
 
 bool RunScanner(Alice &a, ScannerIndex si) {
 	LPTHREAD_START_ROUTINE thread_func = NULL;
@@ -257,6 +269,10 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 	}
 	case SI_Functions_Others: {
 		thread_func = (decltype(thread_func))Thread_Functions_Others;
+		break;
+	}
+	case SI_127_0_0_1: {
+		thread_func = (decltype(thread_func))Thread_127_0_0_1;
 		break;
 	}
 	default: {

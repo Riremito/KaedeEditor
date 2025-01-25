@@ -157,19 +157,11 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	/*
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 82 00 00 00 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 45 ?? 00 00 00 00 90 E8 ?? ?? ?? ?? 50 E8");
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 82 00 00 00 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 45 ?? 00 00 00 00 FF 15 ?? ?? ?? ?? 50 E8");
 	if (res.VA) {
-		mode = L"JMS v164.0-1";
+		mode = L"JMS v164.0";
 		return aix;
 	}
-
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 82 00 00 00 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 45 ?? 00 00 00 00 E8 ?? ?? ?? ?? 90 50 E8");
-	if (res.VA) {
-		mode = L"JMS v164.0-2";
-		return aix;
-	}
-	*/
 
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 ?? ?? ?? ?? 33 C0 8D BD ?? ?? ?? ?? F3 AB");
 	if (res.VA) {
@@ -204,20 +196,6 @@ AddrInfoEx Find_HackShield_MKD25tray(Frost &f) {
 	AddrInfoEx aix = { L"HackShield_MKD25tray", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
-
-	/*
-	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 90 E8 ?? ?? ?? ?? 83 7D FC 00 59");
-	if (res.VA) {
-		mode = L"JMS v164.0-1";
-		return aix;
-	}
-
-	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 E8 ?? ?? ?? ?? 90 83 7D FC 00 59");
-	if (res.VA) {
-		mode = L"JMS v164.0-2";
-		return aix;
-	}
-	*/
 
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 18 00 0F 85 ?? ?? ?? ?? 83 65 FC 00 8D 45 FC 50 FF 15");
 	if (res.VA) {
@@ -290,20 +268,6 @@ AddrInfoEx Find_HackShield_ASPLunchr(Frost &f) {
 	AddrInfoEx aix = { L"HackShield_ASPLunchr", L"31 C0 C3" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
-
-	/*
-	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 14 00 75 ?? 68 ?? ?? ?? ?? 90 E8");
-	if (res.VA) {
-		mode = L"JMS v164.0-1";
-		return aix;
-	}
-
-	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 14 00 75 ?? 68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 90");
-	if (res.VA) {
-		mode = L"JMS v164.0-2";
-		return aix;
-	}
-	*/
 
 	res = f.AobScan(L"55 8B EC 83 EC 0C 56 8B F1 83 7E 14 00 75 ?? 68 ?? ?? ?? ?? FF 15");
 	if (res.VA) {
@@ -863,6 +827,7 @@ std::wstring StrPatchPadding(AddrInfo &res, std::wstring str) {
 	}
 	return patch;
 }
+
 bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 	AddrInfoEx aix = { L"ServerIP" };
 	std::wstring &mode = aix.mode;
