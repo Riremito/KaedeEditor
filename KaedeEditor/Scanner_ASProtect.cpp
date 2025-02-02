@@ -257,6 +257,18 @@ AddrInfoEx Find__setenvp(Frost &f) {
 	return aix;
 }
 
+AddrInfoEx Find__VEC_memzero(Frost &f) {
+	AddrInfoEx aix = { L"_VEC_memzero" , L"", L"KMS v2.114" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"");
+	if (res.VA) {
+	}
+
+	return aix;
+}
+
 // please compare KMS pre-BB (VS2006) and JMS v186, this is written by checking JMS memory.
 bool Poly_Restore_function_VS_2006(Frost &f, int vm_section, std::vector<AddrInfoEx> &result) {
 	ADDSCANRESULT(_EH_prolog);
@@ -269,9 +281,9 @@ bool Poly_Restore_function_VS_2006(Frost &f, int vm_section, std::vector<AddrInf
 
 // please compare KMS post-BB (VS2008) and JMS v188, this is written by checking JMS memory.
 bool Poly_Restore_function_VS_2008(Frost &f, int vm_section, std::vector<AddrInfoEx> &result) {
-	// _memset
-	// _VEC_memzero
-	// _wincmdln
+	//ADDSCANRESULT(_memset);
+	//ADDSCANRESULT(_VEC_memzero);
+	//ADDSCANRESULT(_wincmdln);
 	return true;
 }
 

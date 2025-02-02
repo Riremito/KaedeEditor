@@ -596,6 +596,102 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 
 	return aix;
 }
+
+// ===== REMOVE GAMEGUARD =====
+AddrInfoEx Find_GameGuard_1(Frost &f) {
+	AddrInfoEx aix = { L"GameGuard_1" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"A1 ?? ?? ?? ?? 53 33 DB 3B C3 74 04 33 C0 5B C3 55 8B 2D");
+	if (res.VA) {
+		mode = L"KMS v2.65";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_GameGuard_2(Frost &f) {
+	AddrInfoEx aix = { L"GameGuard_2" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+	if (res.VA) {
+		mode = L"KMS v2.65";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 51 51 56 8D 71 0C 8B CE E8 ?? ?? ?? ?? 85 C0 75 2C E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+	if (res.VA) {
+		mode = L"KMS v2.71";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_GameGuard_3(Frost &f) {
+	AddrInfoEx aix = { L"GameGuard_3" , L"31 C0 C2 04 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 FF 75 08 8B F9 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
+	if (res.VA) {
+		mode = L"KMS v2.65";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 53 8B D9 8D 4B 18 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85");
+	if (res.VA) {
+		mode = L"KMS v2.71";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_GameGuard_4(Frost &f) {
+	AddrInfoEx aix = { L"GameGuard_4" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 57 8D 7E 04 8B CF E8 ?? ?? ?? ?? 85 C0 74");
+	if (res.VA) {
+		mode = L"KMS v2.65";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 51 51 56 8B F1 57 8D 7E 48 8B CF E8 ?? ?? ?? ?? 85 C0 74 1E 8B CF E8 ?? ?? ?? ?? 50 8D 4D F8 E8 ?? ?? ?? ?? 68");
+	if (res.VA) {
+		mode = L"KMS v2.71";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_GameGuard_5(Frost &f) {
+	AddrInfoEx aix = { L"GameGuard_5" , L"31 C0 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 8B F1 FF 46 40 33 DB 39 5E 3C 0F 8F");
+	if (res.VA) {
+		mode = L"KMS v2.65";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 56 8B F1 8D 4E 30 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? FF 46 7C 39 46 78 0F 8F");
+	if (res.VA) {
+		mode = L"KMS v2.71";
+		return aix;
+	}
+
+	return aix;
+}
+
 // ===== REMOVE HACKSHIELD =====
 // ??0CSecurityClient@@QAE@XZ inside
 AddrInfoEx Find_HackShield_NullPtr(Frost &f) {
@@ -1097,13 +1193,29 @@ if (!result.back().info.VA) {\
 std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	std::vector<AddrInfoEx> result;
 	bool vmprotect = false;
+	bool is_gameguard_removal_faield = false;
 	bool is_hackshield_removal_failed = false;
 	bool is_vmprotect = false;
 
 	// Login Server IP
 	Find_String_IPs(f, result);
-	// HackShield Removal Method 1, this was originally written for early post-BB version of JMS/EMS and this also works for KMS.
+	// Game Guard Removal
 	{
+		ADDSCANRESULT(GameGuard_1);
+		CheckScanState(is_gameguard_removal_faield);
+		if (!is_gameguard_removal_faield) {
+			ADDSCANRESULT(GameGuard_2);
+			CheckScanState(is_gameguard_removal_faield);
+			ADDSCANRESULT(GameGuard_3);
+			CheckScanState(is_gameguard_removal_faield);
+			ADDSCANRESULT(GameGuard_4);
+			CheckScanState(is_gameguard_removal_faield);
+			ADDSCANRESULT(GameGuard_5);
+			CheckScanState(is_gameguard_removal_faield);
+		}
+	}
+	// HackShield Removal Method 1, this was originally written for early post-BB version of JMS/EMS and this also works for KMS.
+	if(is_gameguard_removal_faield) {
 		ADDSCANRESULT(HackShield_Init);
 		CheckScanState(is_hackshield_removal_failed);
 		ADDSCANRESULT(HackShield_EHSvc_Loader_1);
