@@ -205,6 +205,17 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 	}
 
 	// KMST
+	res = f.ScanString("61.78.52.30");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"KMST v2.391";
+		result.push_back(aix);
+		check &= true;
+	}
+
+	if (check) {
+		return true;
+	}
 	/*
 	res = f.ScanString("175.207.2.136");
 	if (res.VA) {
@@ -1182,11 +1193,6 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	}
 
 	return aix;
-}
-
-#define CheckScanState(var) \
-if (!result.back().info.VA) {\
-	var = true;\
 }
 
 

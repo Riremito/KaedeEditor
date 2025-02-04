@@ -257,33 +257,143 @@ AddrInfoEx Find__setenvp(Frost &f) {
 	return aix;
 }
 
-AddrInfoEx Find__VEC_memzero(Frost &f) {
+AddrInfoEx Find__memset_2008(Frost &f) {
+	AddrInfoEx aix = { L"_memset" , L"", L"KMS v2.114" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	// caller
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 0F B7 C3 83 C0 ?? 83 C4 0C 83 F8 ?? 0F 87 ?? ?? ?? ?? 0F B6 8? ?? ?? ?? ?? FF 24");
+	if (!res.VA) {
+		return aix;
+	}
+	// get call addr
+	res = f.GetRefAddrRelative(res.VA, 0x01);
+	if (!res.VA) {
+		return aix;
+	}
+	// check asprotect junk code
+	if (((BYTE *)f.GetRawAddress(res.VA))[0] != 0xE9) {
+		aix.patch = L"";
+		return aix;
+	}
+	ULONG_PTR addr_temp = 0;
+	ULONG_PTR addr___sse2_available = 0;
+	ULONG_PTR addr__VEC_memzero = 0;
+
+	addr_temp = f.AobScan(L"83 3D ?? ?? ?? ?? 00 74 16 57 56 83 E7 0F 83 E6 0F 3B FE 5E 5F 75 08 5E 5F 5D E9").VA;
+	if (addr_temp) {
+		addr___sse2_available = *(DWORD *)f.GetRawAddress(addr_temp + 0x02);
+	}
+
+	// fastzero_I+57
+	addr_temp = f.AobScan(L"55 8B EC 83 EC 04 89 7D FC 8B 7D 08 8B 4D 0C C1 E9 07 66 0F EF C0 EB 08 8D A4 24 00 00 00 00 90 66 0F 7F 07 66 0F 7F 47 10 66 0F 7F 47 20 66 0F 7F 47 30 66 0F 7F 47 40 66 0F 7F 47 50 66 0F 7F 47 60 66 0F 7F 47 70 8D BF 80 00 00 00 49 75 D0 8B 7D FC 8B E5 5D C3").VA;
+	if (addr_temp) {
+		addr__VEC_memzero = f.GetAddrInfo(addr_temp + 0x57).VA;
+	}
+
+	// patch
+	aix.patch = L"8B 54 24 0C 8B 4C 24 04 85 D2 74 69 33 C0 8A 44 24 08 84 C0 75 16 81 FA 00 01 00 00 72 0E\r\n";
+	aix.patch += L"db 83 3D\r\n";
+	aix.patch += L"dd " + DWORDtoString((DWORD)addr___sse2_available) + L" // __sse2_available\r\n";
+	aix.patch += L"db 00\r\n";
+	aix.patch += L"db 74 05\r\n";
+	aix.patch += L"jmp " + DWORDtoString((DWORD)addr__VEC_memzero) + L" // _VEC_memzero\r\n";
+	aix.patch += L"db 57 8B F9 83 FA 04 72 31 F7 D9 83 E1 03 74 0C 2B D1 88 07 83 C7 01 83 E9 01 75 F6 8B C8 C1 E0 08 03 C1 8B C8 C1 E0 10 03 C1 8B CA 83 E2 03 C1 E9 02 74 06 F3 AB 85 D2 74 0A 88 07 83 C7 01 83 EA 01 75 F6 8B 44 24 08 5F C3 8B 44 24 04 C3\r\n";
+
+	return aix;
+}
+
+AddrInfoEx Find__VEC_memzero_2008(Frost &f) {
 	AddrInfoEx aix = { L"_VEC_memzero" , L"", L"KMS v2.114" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"");
-	if (res.VA) {
+	// fastzero_I
+	res = f.AobScan(L"55 8B EC 83 EC 04 89 7D FC 8B 7D 08 8B 4D 0C C1 E9 07 66 0F EF C0 EB 08 8D A4 24 00 00 00 00 90 66 0F 7F 07 66 0F 7F 47 10 66 0F 7F 47 20 66 0F 7F 47 30 66 0F 7F 47 40 66 0F 7F 47 50 66 0F 7F 47 60 66 0F 7F 47 70 8D BF 80 00 00 00 49 75 D0 8B 7D FC 8B E5 5D C3");
+	if (!res.VA) {
+		return aix;
 	}
+	res = f.GetAddrInfo(res.VA + 0x57); // fixed offset
+	if (!res.VA) {
+		return aix;
+	}
+	// check asprotect junk code
+	if (((BYTE *)f.GetRawAddress(res.VA))[0] != 0xE9) {
+		aix.patch = L"";
+		return aix;
+	}
+
+	// this includes some call opcodes, but relative addr is always same
+	aix.patch = L"55 8B EC 83 EC 10 89 7D FC 8B 45 08 99 8B F8 33 FA 2B FA 83 E7 0F 33 FA 2B FA 85 FF 75 3C 8B 4D 10 8B D1 83 E2 7F 89 55 F4 3B CA 74 12 2B CA 51 50 E8 73 FF FF FF 83 C4 08 8B 45 08 8B 55 F4 85 D2 74 45 03 45 10 2B C2 89 45 F8 33 C0 8B 7D F8 8B 4D F4 F3 AA 8B 45 08 EB 2E F7 DF 83 C7 10 89 7D F0 33 C0 8B 7D 08 8B 4D F0 F3 AA 8B 45 F0 8B 4D 08 8B 55 10 03 C8 2B D0 52 6A 00 51 E8 7E FF FF FF 83 C4 0C 8B 45 08 8B 7D FC 8B E5 5D C3";
+	return aix;
+}
+
+AddrInfoEx Find__wincmdln_2008(Frost &f) {
+	AddrInfoEx aix = { L"_wincmdln" , L"", L"KMS v2.114" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	// caller
+	res = f.AobScan(L"E8 ?? ?? ?? ?? 84 5D ?? 74 06 0F B7 4D ?? EB 03 6A 0A 59 51 50 56 68 00 00 40 00 E8");
+	if (!res.VA) {
+		return aix;
+	}
+	// get call addr
+	res = f.GetRefAddrRelative(res.VA, 0x01);
+	if (!res.VA) {
+		return aix;
+	}
+	// check asprotect junk code
+	if (((BYTE *)f.GetRawAddress(res.VA))[0] != 0xE9) {
+		aix.patch = L"";
+		return aix;
+	}
+	
+	ULONG_PTR addr___mbctype_initialized = 0;
+	ULONG_PTR addr__initmbctable = 0;
+	ULONG_PTR addr__acmdln = 0;
+	ULONG_PTR addr_sStrDefault = 0;
+	ULONG_PTR addr__ismbblead = 0;
+	// patch
+	aix.patch = L"8B FF 56 57 33 FF\r\n";
+	aix.patch += L"db 39 3D\r\n";
+	aix.patch += L"dd " + DWORDtoString((DWORD)addr___mbctype_initialized) + L" // __mbctype_initialized\r\n";
+	aix.patch += L"db 75 05\r\n";
+	aix.patch += L"call " + DWORDtoString((DWORD)addr__initmbctable) + L" // _initmbctable\r\n";
+	aix.patch += L"db 8B 35\r\n";
+	aix.patch += L"dd " + DWORDtoString((DWORD)addr__acmdln) + L" // addr__acmdln\r\n";
+	aix.patch += L"db 85 F6 75 05\r\n";
+	aix.patch += L"db BE\r\n";
+	aix.patch += L"dd " + DWORDtoString((DWORD)addr_sStrDefault) + L" // sStrDefault\r\n";
+	aix.patch += L"db 8A 06 3C 20 77 08 84 C0 74 2E 85 FF 74 24 3C 22 75 09 33 C9 85 FF 0F 94 C1 8B F9 0F B6 C0 50\r\n";
+	aix.patch += L"call " + DWORDtoString((DWORD)addr__ismbblead) + L" //_ismbblead\r\n";
+	aix.patch += L"db 59 85 C0 74 01 46 46 EB D3 3C 20 77 07 46 8A 06 84 C0 75 F5 5F 8B C6 5E C3\r\n";
 
 	return aix;
 }
 
 // please compare KMS pre-BB (VS2006) and JMS v186, this is written by checking JMS memory.
 bool Poly_Restore_function_VS_2006(Frost &f, int vm_section, std::vector<AddrInfoEx> &result) {
+	bool is_faield = false;
 	ADDSCANRESULT(_EH_prolog);
+	CheckScanState(is_faield);
 	ADDSCANRESULT(_memset);
+	CheckScanState(is_faield);
 	ADDSCANRESULT(_strlen);
+	CheckScanState(is_faield);
 	ADDSCANRESULT(_wincmdln);
+	CheckScanState(is_faield);
 	ADDSCANRESULT(_setenvp);
-	return true;
+	CheckScanState(is_faield);
+	return is_faield ? false : true;
 }
 
 // please compare KMS post-BB (VS2008) and JMS v188, this is written by checking JMS memory.
 bool Poly_Restore_function_VS_2008(Frost &f, int vm_section, std::vector<AddrInfoEx> &result) {
-	//ADDSCANRESULT(_memset);
-	//ADDSCANRESULT(_VEC_memzero);
-	//ADDSCANRESULT(_wincmdln);
+	ADDSCANRESULT(_memset_2008);
+	ADDSCANRESULT(_VEC_memzero_2008);
+	ADDSCANRESULT(_wincmdln_2008);
 	return true;
 }
 
@@ -292,8 +402,10 @@ bool Poly_Restore_function_VS_2008(Frost &f, int vm_section, std::vector<AddrInf
 std::vector<AddrInfoEx> Scanner_ASProtect(Frost &f, int vm_section) {
 	std::vector<AddrInfoEx> result;
 
-	Poly_Restore_call_ptr(f, vm_section, result);
-	Poly_Restore_function_VS_2006(f, vm_section, result); // need to patch call ptr before you try this.
-	//Poly_Restore_function_VS_2008(f, vm_section, result);
+	//Poly_Restore_call_ptr(f, vm_section, result);
+	// need to patch call ptr before you try this.
+	if (!Poly_Restore_function_VS_2006(f, vm_section, result)) {
+		Poly_Restore_function_VS_2008(f, vm_section, result);
+	}
 	return result;
 }

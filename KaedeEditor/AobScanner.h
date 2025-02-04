@@ -7,6 +7,11 @@
 
 #define ADDSCANRESULT(tag) result.push_back(Find_##tag##(f));
 #define ADDSCANRESULT64(tag) result.push_back(Find_##tag##(f));
+#define CheckScanState(var) \
+if (!result.back().info.VA) {\
+	var = true;\
+}
+
 
 typedef struct {
 	std::wstring tag;
