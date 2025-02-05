@@ -105,82 +105,163 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"KMS v2.109";
 		result.push_back(aix);
-		check = true;
+		check &= true;
 		// more
 		res = f.ScanString("220.90.204.11");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.12");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.13");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.14");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.15");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.16");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.17");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.18");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.19");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 		res = f.ScanString("220.90.204.20");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check = true;
+			check &= true;
 		}
 	}
 
 	if (check) {
 		return true;
+	}
+
+
+	// KMS v2.183+
+	res = f.ScanString("175.207.0.33");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"KMS v2.183";
+		result.push_back(aix);
+		check &= true;
+		// more
+		res = f.ScanString("175.207.0.34");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.35");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.36");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.37");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.38");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.39");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.40");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.41");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.42");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
+		res = f.ScanString("175.207.0.43");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMS v2.183";
+			result.push_back(aix);
+			check &= true;
+		}
 	}
 
 	// MSEA
