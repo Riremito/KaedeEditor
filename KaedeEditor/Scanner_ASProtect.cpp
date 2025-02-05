@@ -350,17 +350,32 @@ AddrInfoEx Find__wincmdln_2008(Frost &f) {
 		return aix;
 	}
 	
+	ULONG_PTR addr_temp = 0;
 	ULONG_PTR addr___mbctype_initialized = 0;
-	ULONG_PTR addr__initmbctable = 0;
+	ULONG_PTR addr___initmbctable = 0;
 	ULONG_PTR addr__acmdln = 0;
 	ULONG_PTR addr_sStrDefault = 0;
 	ULONG_PTR addr__ismbblead = 0;
+
+	addr___initmbctable = f.AobScan(L"83 3D ?? ?? ?? ?? 00 75 12 6A FD E8 ?? ?? ?? ?? 59 C7 05 ?? ?? ?? ?? 01 00 00 00 33 C0 C3").VA;
+	if (addr___initmbctable) {
+		addr___mbctype_initialized = *(DWORD *)f.GetRawAddress(addr___initmbctable + 0x02);
+	}
+	addr_temp = f.AobScan(L"FF 15 ?? ?? ?? ?? A3 ?? ?? ?? ?? E8 ?? ?? ?? ?? A3 ?? ?? ?? ?? E8").VA;
+	if (addr_temp) {
+		addr__acmdln = *(DWORD *)f.GetRawAddress(addr_temp + 0x07);
+	}
+	addr_temp = f.AobScan(L"FF 15 ?? ?? ?? ?? 3D B5 03 00 00 74 ?? E8 ?? ?? ?? ?? 51 8B CC 89 65 ?? 6A FF 68").VA;
+	if (addr_temp) {
+		addr_sStrDefault = *(DWORD *)f.GetRawAddress(addr_temp + 0x1B);
+	}
+	addr__ismbblead = f.AobScan(L"8B FF 55 8B EC 6A 04 6A 00 FF 75 08 6A 00 E8 ?? ?? ?? ?? 83 C4 10 5D C3").VA;
 	// patch
 	aix.patch = L"8B FF 56 57 33 FF\r\n";
 	aix.patch += L"db 39 3D\r\n";
 	aix.patch += L"dd " + DWORDtoString((DWORD)addr___mbctype_initialized) + L" // __mbctype_initialized\r\n";
 	aix.patch += L"db 75 05\r\n";
-	aix.patch += L"call " + DWORDtoString((DWORD)addr__initmbctable) + L" // _initmbctable\r\n";
+	aix.patch += L"call " + DWORDtoString((DWORD)addr___initmbctable) + L" // __initmbctable\r\n";
 	aix.patch += L"db 8B 35\r\n";
 	aix.patch += L"dd " + DWORDtoString((DWORD)addr__acmdln) + L" // addr__acmdln\r\n";
 	aix.patch += L"db 85 F6 75 05\r\n";
@@ -402,7 +417,7 @@ bool Poly_Restore_function_VS_2008(Frost &f, int vm_section, std::vector<AddrInf
 std::vector<AddrInfoEx> Scanner_ASProtect(Frost &f, int vm_section) {
 	std::vector<AddrInfoEx> result;
 
-	//Poly_Restore_call_ptr(f, vm_section, result);
+	Poly_Restore_call_ptr(f, vm_section, result);
 	// need to patch call ptr before you try this.
 	if (!Poly_Restore_function_VS_2006(f, vm_section, result)) {
 		Poly_Restore_function_VS_2008(f, vm_section, result);
