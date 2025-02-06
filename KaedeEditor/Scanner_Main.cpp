@@ -1274,6 +1274,20 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	return aix;
 }
 
+AddrInfoEx Find_WzRSAEncryptStringForLoginPassword(Frost &f) {
+	AddrInfoEx aix = { L"WzRSAEncryptStringForLoginPassword", L"8B 44 24 04 C3" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 57 33 FF 89 7D ?? 6A 01 5B 89 5D ?? 68 2C 01 00 00 8D 85 ?? ?? ?? ?? 57 50 E8");
+	if (res.VA) {
+		mode = L"EMS v55.1";
+		return aix;
+	}
+
+	return aix;
+}
+
 
 std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	std::vector<AddrInfoEx> result;
@@ -1353,6 +1367,7 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	ADDSCANRESULT(MapleNetwork);
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
+	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
 	// for JMS high version localhost script.
 	if (vmprotect) {
 		if (result.back().info.VA) {
