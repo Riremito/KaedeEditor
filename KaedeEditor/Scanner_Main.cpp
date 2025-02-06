@@ -15,22 +15,21 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 	AddrInfoEx aix = { L"ServerIP" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
-	bool check = false;
+	bool is_hit = false;
 	// JMS
 	res = f.ScanString("61.215.216.38");
 	if (res.VA) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"JMS v29";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
-
 	res = f.ScanString("59.128.93.105");
 	if (res.VA) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"JMS v164.0";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
 	res = f.ScanString("111.87.33.105");
@@ -38,10 +37,10 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"JMS v302.0";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
@@ -51,10 +50,30 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"TWMS v157";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
-	if (check) {
+	if (is_hit) {
+		return true;
+	}
+
+	// EMS
+	res = f.ScanString("91.202.203.226");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"EMS v55.1";
+		result.push_back(aix);
+		is_hit = true;
+	}
+	res = f.ScanString("109.234.73.11");
+	if (res.VA) {
+		aix.patch = StrPatchPadding(res, L"127.0.0.1");
+		mode = L"EMS v70.1";
+		result.push_back(aix);
+		is_hit = true;
+	}
+
+	if (is_hit) {
 		return true;
 	}
 
@@ -64,7 +83,7 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"CMS v86.1";
 		result.push_back(aix);
-		check = true;
+		is_hit = true;
 		// more
 		res = f.ScanString("mxdlogin2.poptang.com");
 		if (res.VA) {
@@ -95,7 +114,7 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		}
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
@@ -105,84 +124,73 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"KMS v2.109";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 		// more
 		res = f.ScanString("220.90.204.11");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.12");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.13");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.14");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.15");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.16");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.17");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.18");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.19");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("220.90.204.20");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.109";
 			result.push_back(aix);
-			check &= true;
 		}
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
-
 
 	// KMS v2.183+
 	res = f.ScanString("175.207.0.33");
@@ -190,78 +198,72 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"KMS v2.183";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 		// more
 		res = f.ScanString("175.207.0.34");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.35");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.36");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.37");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.38");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.39");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.40");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.41");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.42");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
 		res = f.ScanString("175.207.0.43");
 		if (res.VA) {
 			aix.patch = StrPatchPadding(res, L"127.0.0.1");
 			mode = L"KMS v2.183";
 			result.push_back(aix);
-			check &= true;
 		}
+	}
+
+	if (is_hit) {
+		return true;
 	}
 
 	// MSEA
@@ -270,18 +272,17 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"MSEA v100";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
+		// more
+		res = f.ScanString("203.188.239.82");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"MSEA v100";
+			result.push_back(aix);
+		}
 	}
 
-	res = f.ScanString("203.188.239.82");
-	if (res.VA) {
-		aix.patch = StrPatchPadding(res, L"127.0.0.1");
-		mode = L"MSEA v100";
-		result.push_back(aix);
-		check &= true;
-	}
-
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
@@ -291,10 +292,10 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"KMST v2.391";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 	/*
@@ -317,10 +318,10 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"BMS v24";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
@@ -330,10 +331,10 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"THMS v88";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
 	}
 
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
@@ -343,26 +344,23 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 		aix.patch = StrPatchPadding(res, L"127.0.0.1");
 		mode = L"GMS v72";
 		result.push_back(aix);
-		check &= true;
+		is_hit = true;
+		// more
+		res = f.ScanString("63.251.217.3");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"GMS v72";
+			result.push_back(aix);
+		}
+		res = f.ScanString("63.251.217.4");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"GMS v72";
+			result.push_back(aix);
+		}
 	}
 
-	res = f.ScanString("63.251.217.3");
-	if (res.VA) {
-		aix.patch = StrPatchPadding(res, L"127.0.0.1");
-		mode = L"GMS v72";
-		result.push_back(aix);
-		check &= true;
-	}
-
-	res = f.ScanString("63.251.217.4");
-	if (res.VA) {
-		aix.patch = StrPatchPadding(res, L"127.0.0.1");
-		mode = L"GMS v72";
-		result.push_back(aix);
-		check &= true;
-	}
-
-	if (check) {
+	if (is_hit) {
 		return true;
 	}
 
