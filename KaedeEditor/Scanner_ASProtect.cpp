@@ -416,7 +416,7 @@ bool Poly_Restore_function_VS_2008(Frost &f, int vm_section, std::vector<AddrInf
 // ASPprotect
 std::vector<AddrInfoEx> Scanner_ASProtect(Frost &f, int vm_section) {
 	std::vector<AddrInfoEx> result;
-
+	g_vm_section_aspr = vm_section;
 	Poly_Restore_call_ptr(f, vm_section, result);
 	// need to patch call ptr before you try this.
 	if (!Poly_Restore_function_VS_2006(f, vm_section, result)) {
