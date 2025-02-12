@@ -1257,6 +1257,12 @@ AddrInfoEx Find_Ad(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 33 DB 39 1D ?? ?? ?? ?? 56 57 74 05 E8 ?? ?? ?? ?? 53 FF 15");
+	if (res.VA) {
+		mode = L"JMS v147.0";
+		return aix;
+	}
+
 	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 56 57 33 DB 53 FF 15");
 	if (res.VA) {
 		mode = L"JMS v164.0";
@@ -1307,13 +1313,28 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 }
 
 AddrInfoEx Find_WzRSAEncryptStringForLoginPassword(Frost &f) {
-	AddrInfoEx aix = { L"WzRSAEncryptStringForLoginPassword", L"8B 44 24 04 C3" };
+	AddrInfoEx aix = { L"WzRSAEncryptStringForLoginPassword", L"EB 14 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 83 C4 0C 6A FF 8B 45 08 FF 30 EB 00" };
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 57 33 FF 89 7D ?? 6A 01 5B 89 5D ?? 68 2C 01 00 00 8D 85 ?? ?? ?? ?? 57 50 E8");
+	res = f.AobScan(L"8D 85 ?? ?? ?? ?? 50 FF 75 0C FF 75 F0 FF 75 10 FF 15 ?? ?? ?? ?? 83 C4 1C 6A FF 8D 85 ?? ?? ?? ?? 50");
 	if (res.VA) {
-		mode = L"EMS v55.1";
+		mode = L"JMS v147.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_JumpDown(Frost &f) {
+	AddrInfoEx aix = { L"JumpDown", L"EB" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"FF 15 ?? ?? ?? ?? 8B 4D ?? 8B 41 ?? 83 78 ?? 00 C6 45 ?? 01 74 ?? 80 65 ?? 00 85 C9 74");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x14);
+		mode = L"JMS v147.0";
 		return aix;
 	}
 
@@ -1401,6 +1422,7 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
 	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
+	ADDSCANRESULT(JumpDown);
 	// for JMS high version localhost script.
 	if (vmprotect) {
 		if (result.back().info.VA) {
