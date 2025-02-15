@@ -719,6 +719,13 @@ AddrInfoEx Find_GameGuard_2(Frost &f) {
 		return aix;
 	}
 
+	// DEVM
+	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+	if (res.VA) {
+		mode = L"GMS v65.1";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -736,6 +743,13 @@ AddrInfoEx Find_GameGuard_3(Frost &f) {
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 53 8B D9 8D 4B 18 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85");
 	if (res.VA) {
 		mode = L"KMS v2.71";
+		return aix;
+	}
+
+	// DEVM
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 8B F9 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 FF 75 08 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
+	if (res.VA) {
+		mode = L"GMS v65.1";
 		return aix;
 	}
 
@@ -1223,6 +1237,13 @@ AddrInfoEx Find_WindowMode(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"C7 05 ?? ?? ?? ?? 10 00 00 00 E8");
+	if (res.VA) {
+		mode = L"GMS v65.1";
+		res = f.GetAddrInfo(res.VA + 0x06);
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -1341,6 +1362,66 @@ AddrInfoEx Find_JumpDown(Frost &f) {
 	return aix;
 }
 
+// GMS v6X, crash after close window
+AddrInfoEx Find_TerminateFix_1(Frost &f) {
+	AddrInfoEx aix = { L"TerminateFix_1", L"EB" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"C7 45 FC 0B 00 00 00 74 14 83 60 28 00 8B 0D ?? ?? ?? ?? E8");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x07);
+		mode = L"GMS v65.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_TerminateFix_2(Frost &f) {
+	AddrInfoEx aix = { L"TerminateFix_2", L"EB 0D 90 90 90 90 90 90 90 90 90 90 90 90 90 EB" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"BB ?? ?? ?? ?? 56 8B CB E8 ?? ?? ?? ?? 84 C0 75 ?? A1");
+	if (res.VA) {
+		mode = L"GMS v65.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_TerminateFix_3(Frost &f) {
+	AddrInfoEx aix = { L"TerminateFix_3", L"90 90 90 90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"80 65 FC 00 8D 4E 20 E8 ?? ?? ?? ?? 8B 4D F4 83 25 ?? ?? ?? ?? 00 5E 64 89 0D 00 00 00 00 C9 C3");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x07);
+		mode = L"GMS v65.1";
+		return aix;
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_TerminateFix_4(Frost &f) {
+	AddrInfoEx aix = { L"TerminateFix_4", L"EB" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"83 7C 24 0C 00 53 8B 5C 24 14 89 3D ?? ?? ?? ?? 88 1D ?? ?? ?? ?? 75");
+	if (res.VA) {
+		res = f.GetAddrInfo(res.VA + 0x16);
+		mode = L"GMS v65.1";
+		return aix;
+	}
+
+	return aix;
+}
+
 
 std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	std::vector<AddrInfoEx> result;
@@ -1422,7 +1503,13 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
 	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
+	// Bug Fix
 	ADDSCANRESULT(JumpDown);
+	ADDSCANRESULT(TerminateFix_1);
+	ADDSCANRESULT(TerminateFix_2);
+	ADDSCANRESULT(TerminateFix_3);
+	ADDSCANRESULT(TerminateFix_4);
+
 	// for JMS high version localhost script.
 	if (vmprotect) {
 		if (result.back().info.VA) {
