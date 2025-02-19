@@ -64,6 +64,16 @@ std::vector<AddrInfoEx> Scanner_SelfCrash(Frost &f) {
 			result.push_back(aix);
 		}
 	}
+	// Early SendPacket detection
+	{
+		AddrInfoEx aix = { L"RetAddrCheck", L"3D 00 10 40 00 76 04 3B C3 72 04 90 90 90 90", L"Call_0" };
+		AddrInfo &res = aix.info;
+
+		for (auto &v : f.AobScanAll(L"3D 00 10 40 00 76 04 3B C3 72 04 33 C0 FF D0")) {
+			res = v;
+			result.push_back(aix);
+		}
+	}
 
 	return result;
 }

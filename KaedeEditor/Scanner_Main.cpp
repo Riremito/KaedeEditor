@@ -1065,6 +1065,7 @@ AddrInfoEx Find_HideDll(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
+	// DEVM
 	res = f.AobScan(L"55 8B EC 51 56 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 31 D2 89 55 FC 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
 	if (res.VA) {
 		mode = L"GMS v62.1";
@@ -1074,6 +1075,12 @@ AddrInfoEx Find_HideDll(Frost &f) {
 	res = f.AobScan(L"55 8B EC 51 51 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 83 65 FC 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C");
 	if (res.VA) {
 		mode = L"GMS v84.1";
+		return aix;
+	}
+
+	res = f.AobScan(L"55 8B EC 83 EC ?? EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 C7 45 FC 00 00 00 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
+	if (res.VA) {
+		mode = L"GMS v111.1";
 		return aix;
 	}
 
