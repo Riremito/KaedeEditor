@@ -175,6 +175,7 @@
     <ClInclude Include="Formatter.h" />
     <ClInclude Include="Frost.h" />
     <ClInclude Include="KaedeEditor.h" />
+    <ClInclude Include="ScannerOption.h" />
     <ClInclude Include="Simple.h" />
     <ClInclude Include="SimpleGUI.h" />
     <ClInclude Include="StringPool.h" />

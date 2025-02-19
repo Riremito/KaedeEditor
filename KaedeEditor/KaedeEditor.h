@@ -7,8 +7,6 @@
 #include"Formatter.h"
 #include"AobScanner.h"
 
-void SetDEVM(bool flag);
-bool GetDEVM();
 
 #define VIEWER_WIDTH 800
 #define VIEWER_HEIGHT 600
@@ -28,6 +26,7 @@ enum SubControl {
 	EDIT_TEST_SCAN,
 	BUTTON_TEST_SCAN,
 	CHECK_TEST_SCAN_ALL,
+	COMBOBOX_COMPILER,
 };
 
 enum ListViewIndex {
@@ -64,6 +63,7 @@ const std::wstring ScannerList[] = {
 	L"Functions - Others",
 	L"127.0.0.1",
 };
+
 
 #define INFO_ADD(str) a.AddText(TEXTAREA_INFO, str)
 #define INFO_CLEAR()  a.SetText(TEXTAREA_INFO, L"")

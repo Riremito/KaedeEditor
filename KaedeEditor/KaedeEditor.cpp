@@ -1,13 +1,5 @@
 ﻿#include"KaedeEditor.h"
-
-bool flag_devm = true;
-void SetDEVM(bool flag) {
-	flag_devm = flag;
-}
-
-bool GetDEVM() {
-	return flag_devm;
-}
+#include"ScannerOption.h"
 
 Alice *alice_global = NULL;
 Frost *frost_dropped = NULL;
@@ -54,6 +46,57 @@ bool Dropped_Parse() {
 
 	return true;
 }
+
+// flags
+bool flag_devm = true;
+void SetDEVM(bool flag) {
+	Alice &a = *alice_global;
+	if (flag) {
+		//INFO_ADD(L"DEVM TRUE");
+	}
+	else {
+		//INFO_ADD(L"DEVM FALSE");
+	}
+
+	flag_devm = flag;
+}
+
+bool GetDEVM() {
+	return flag_devm;
+}
+
+CompilerFlag flag_compiler = CF_ALL;
+void SetCFlag(CompilerIndex ci) {
+	Alice &a = *alice_global;
+
+	switch (ci) {
+	case CI_ALL: {
+		//INFO_ADD(L"Compiler ALL");
+		flag_compiler = CF_ALL;
+		break;
+	}
+	case CI_VS2006: {
+		//INFO_ADD(L"Compiler VS2006");
+		flag_compiler = CF_VS2006;
+		break;
+	}
+	case CI_VS2008: {
+		//INFO_ADD(L"Compiler VS2008");
+		flag_compiler = CF_VS2008;
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+}
+
+CompilerFlag GetCFlag() {
+	return flag_compiler;
+}
+
+
 
 // thread task checks
 void ScanButtonLock(int nIDDlgItem) {
@@ -339,11 +382,17 @@ bool OnCreate(Alice &a) {
 	a.StaticText(STATIC_VM_SECTION, L"VM Section : ", (VIEWER_WIDTH - 3) - 100 - 110, (AR_HEIGHT + 50));
 	a.EditBox(EDIT_VM_SECTION, (VIEWER_WIDTH - 3) - 100, (AR_HEIGHT + 50), L"3", 100);
 	a.CheckBox(CHECK_DEVM, L"Unvirtualized", (VIEWER_WIDTH - 3) - 100, (AR_HEIGHT + 70), BST_CHECKED);
+	a.ComboBox(COMBOBOX_COMPILER, (VIEWER_WIDTH - 3) - 150 - 110, (AR_HEIGHT + 70), 150);
 
 	for (auto v : ScannerList) {
 		a.ComboBoxAdd(COMBOBOX_SCANNER, v);
 	}
 	a.ComboBoxSelect(COMBOBOX_SCANNER, 0);
+
+	for (auto v : CompilerList) {
+		a.ComboBoxAdd(COMBOBOX_COMPILER, v);
+	}
+	a.ComboBoxSelect(COMBOBOX_COMPILER, 0);
 
 	// test
 	a.EditBox(EDIT_TEST_SCAN, 3, (AR_HEIGHT + 30), L"", 300);
@@ -361,7 +410,7 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 		if (!frost_dropped) {
 			return false;
 		}
-		SetDEVM(a.CheckBoxStatus(CHECK_DEVM));
+		SetCFlag((CompilerIndex)a.ComboBoxSelected(COMBOBOX_COMPILER));
 		ScannerIndex si = (ScannerIndex)a.ComboBoxSelected(COMBOBOX_SCANNER);
 		RunScanner(a, si);
 		return true;
@@ -371,6 +420,10 @@ bool OnCommand(Alice &a, int nIDDlgItem) {
 			return false;
 		}
 		TestScanWrapper();
+		return true;
+	}
+	case CHECK_DEVM: {
+		SetDEVM(a.CheckBoxStatus(nIDDlgItem));
 		return true;
 	}
 	default: {

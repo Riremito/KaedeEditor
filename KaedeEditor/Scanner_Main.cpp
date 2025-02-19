@@ -1,4 +1,5 @@
 ﻿#include"AobScanner.h"
+#include"ScannerOption.h"
 
 
 std::wstring StrPatchPadding(AddrInfo &res, std::wstring str) {
@@ -693,10 +694,12 @@ AddrInfoEx Find_GameGuard_1(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"A1 ?? ?? ?? ?? 53 33 DB 3B C3 74 04 33 C0 5B C3 55 8B 2D");
-	if (res.VA) {
-		mode = L"KMS v2.65";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"A1 ?? ?? ?? ?? 53 33 DB 3B C3 74 04 33 C0 5B C3 55 8B 2D");
+		if (res.VA) {
+			mode = L"KMS v2.65";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -707,23 +710,27 @@ AddrInfoEx Find_GameGuard_2(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
-	if (res.VA) {
-		mode = L"KMS v2.65";
-		return aix;
-	}
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+		if (res.VA) {
+			mode = L"KMS v2.65";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 51 51 56 8D 71 0C 8B CE E8 ?? ?? ?? ?? 85 C0 75 2C E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
-	if (res.VA) {
-		mode = L"KMS v2.71";
-		return aix;
-	}
+		res = f.AobScan(L"55 8B EC 51 51 56 8D 71 0C 8B CE E8 ?? ?? ?? ?? 85 C0 75 2C E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+		if (res.VA) {
+			mode = L"KMS v2.71";
+			return aix;
+		}
 
-	// DEVM
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
-	if (res.VA) {
-		mode = L"GMS v65.1";
-		return aix;
+		// DEVM
+		if (GetDEVM()) {
+			res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 E8 ?? ?? ?? ?? 3D 55 07 00 00 74");
+			if (res.VA) {
+				mode = L"GMS v65.1";
+				return aix;
+			}
+		}
 	}
 
 	return aix;
@@ -734,23 +741,27 @@ AddrInfoEx Find_GameGuard_3(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 FF 75 08 8B F9 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
-	if (res.VA) {
-		mode = L"KMS v2.65";
-		return aix;
-	}
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 FF 75 08 8B F9 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
+		if (res.VA) {
+			mode = L"KMS v2.65";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 53 8B D9 8D 4B 18 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85");
-	if (res.VA) {
-		mode = L"KMS v2.71";
-		return aix;
-	}
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 53 8B D9 8D 4B 18 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85");
+		if (res.VA) {
+			mode = L"KMS v2.71";
+			return aix;
+		}
 
-	// DEVM
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 8B F9 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 FF 75 08 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
-	if (res.VA) {
-		mode = L"GMS v65.1";
-		return aix;
+		// DEVM
+		if (GetDEVM()) {
+			res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 8B F9 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 FF 75 08 E8 ?? ?? ?? ?? 59 8D 85 ?? ?? ?? ?? 50 C7 85 ?? ?? ?? ?? 94 00 00 00 FF 15 ?? ?? ?? ?? 83 BD ?? ?? ?? ?? 02 0F 85");
+			if (res.VA) {
+				mode = L"GMS v65.1";
+				return aix;
+			}
+		}
 	}
 
 	return aix;
@@ -761,22 +772,24 @@ AddrInfoEx Find_GameGuard_4(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 8B 46 04 57 33 FF 3B C7 74 ?? 89 45 ?? 89 45 ?? 68");
-	if (res.VA) {
-		mode = L"JMS v141.0";
-		return aix;
-	}
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 8B 46 04 57 33 FF 3B C7 74 ?? 89 45 ?? 89 45 ?? 68");
+		if (res.VA) {
+			mode = L"JMS v141.0";
+			return aix;
+		}
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 57 8D 7E 04 8B CF E8 ?? ?? ?? ?? 85 C0 74");
-	if (res.VA) {
-		mode = L"KMS v2.65";
-		return aix;
-	}
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 51 51 56 8B F1 57 8D 7E 04 8B CF E8 ?? ?? ?? ?? 85 C0 74");
+		if (res.VA) {
+			mode = L"KMS v2.65";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 51 51 56 8B F1 57 8D 7E 48 8B CF E8 ?? ?? ?? ?? 85 C0 74 1E 8B CF E8 ?? ?? ?? ?? 50 8D 4D F8 E8 ?? ?? ?? ?? 68");
-	if (res.VA) {
-		mode = L"KMS v2.71";
-		return aix;
+		res = f.AobScan(L"55 8B EC 51 51 56 8B F1 57 8D 7E 48 8B CF E8 ?? ?? ?? ?? 85 C0 74 1E 8B CF E8 ?? ?? ?? ?? 50 8D 4D F8 E8 ?? ?? ?? ?? 68");
+		if (res.VA) {
+			mode = L"KMS v2.71";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -787,22 +800,24 @@ AddrInfoEx Find_GameGuard_5(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 8B F1 FF 46 ?? 33 DB 39 5E ?? 0F 8F");
-	if (res.VA) {
-		mode = L"JMS v141.0";
-		return aix;
-	}
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 8B F1 FF 46 ?? 33 DB 39 5E ?? 0F 8F");
+		if (res.VA) {
+			mode = L"JMS v141.0";
+			return aix;
+		}
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 8B F1 33 DB 39 5E ?? 57 0F 8F");
-	if (res.VA) {
-		mode = L"TWMS v43.1";
-		return aix;
-	}
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 81 EC ?? ?? ?? ?? 53 56 8B F1 33 DB 39 5E ?? 57 0F 8F");
+		if (res.VA) {
+			mode = L"TWMS v43.1";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 56 8B F1 8D 4E 30 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? FF 46 7C 39 46 78 0F 8F");
-	if (res.VA) {
-		mode = L"KMS v2.71";
-		return aix;
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 56 8B F1 8D 4E 30 89 4D FC E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? FF 46 7C 39 46 78 0F 8F");
+		if (res.VA) {
+			mode = L"KMS v2.71";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -864,10 +879,12 @@ AddrInfoEx Find_HackShield_Packet(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 6A ?? 8D 4C 24 ?? C6 86 ?? ?? ?? ?? 01 E8 ?? ?? ?? ?? 6A 01");
-	if (res.VA) {
-		mode = L"JMS v322.0";
-		return aix;
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 6A ?? 8D 4C 24 ?? C6 86 ?? ?? ?? ?? 01 E8 ?? ?? ?? ?? 6A 01");
+		if (res.VA) {
+			mode = L"JMS v322.0";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1045,16 +1062,18 @@ AddrInfoEx Find_DR_Check(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"55 8B EC 81 EC F0 02 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 6A 00 E9");
-	if (res.VA) {
-		mode = L"JMS v331.0";
-		return aix;
-	}
+	if (GetDEVM()) {
+		res = f.AobScan(L"55 8B EC 81 EC F0 02 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 6A 00 E9");
+		if (res.VA) {
+			mode = L"JMS v331.0";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 E9");
-	if (res.VA) {
-		mode = L"MSEA v102";
-		return aix;
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 E9");
+		if (res.VA) {
+			mode = L"MSEA v102";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1066,22 +1085,24 @@ AddrInfoEx Find_HideDll(Frost &f) {
 	AddrInfo &res = aix.info;
 
 	// DEVM
-	res = f.AobScan(L"55 8B EC 51 56 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 31 D2 89 55 FC 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
-	if (res.VA) {
-		mode = L"GMS v62.1";
-		return aix;
-	}
+	if (GetDEVM()) {
+		res = f.AobScan(L"55 8B EC 51 56 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 31 D2 89 55 FC 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
+		if (res.VA) {
+			mode = L"GMS v62.1";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 51 51 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 83 65 FC 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C");
-	if (res.VA) {
-		mode = L"GMS v84.1";
-		return aix;
-	}
+		res = f.AobScan(L"55 8B EC 51 51 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 83 65 FC 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C");
+		if (res.VA) {
+			mode = L"GMS v84.1";
+			return aix;
+		}
 
-	res = f.AobScan(L"55 8B EC 83 EC ?? EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 C7 45 FC 00 00 00 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
-	if (res.VA) {
-		mode = L"GMS v111.1";
-		return aix;
+		res = f.AobScan(L"55 8B EC 83 EC ?? EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 C7 45 FC 00 00 00 00 50 64 A1 18 00 00 00 8B 40 30 8B 40 0C 89 45 FC 58");
+		if (res.VA) {
+			mode = L"GMS v111.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1151,14 +1172,14 @@ AddrInfoEx Find_RemoveMSCRC_OnEnterField_EnterVM(Frost &f) {
 		return aix;
 	}
 
-	res = f.AobScan(L"55 8B EC 6A FF 68 ? ? ? ? ? ? ? ? 64 A1 00 00 00 00 50 81 EC ? ? ? ? ? ? ? ? 53 56 57 A1 ? ? ? ? ? ? ? ? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 8D ? ? ? ? ? ? ? ? C7 45 BC 00 00 00 00 33 C0 89 45 C0 89 45 C4 89 45 C8 89 45 CC 89 45 D0 89 45 D4 C7 45 B0 00 00 00 00 33 C9 89 4D B4 89 4D B8 E8");
+	/*
+	res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC ?? ?? ?? ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 8D ?? ?? ?? ?? C7 45 BC 00 00 00 00 33 C0 89 45 C0 89 45 C4 89 45 C8 89 45 CC 89 45 D0 89 45 D4 C7 45 B0 00 00 00 00 33 C9 89 4D B4 89 4D B8 E8");
 	if (res.VA) {
 		res = f.GetAddrInfo(res.VA + 0x70);
 		mode = L"JMS v334";
 		return aix;
 	}
 
-	/*
 	res = f.AobScan(L"E9 ?? ?? ?? ?? 50 EB 55 2C 8A 4A 9C AF 79 54 A0");
 	if (res.VA) {
 		mode = L"TWMS v192.2";
@@ -1285,22 +1306,26 @@ AddrInfoEx Find_Ad(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 33 DB 39 1D ?? ?? ?? ?? 56 57 74 05 E8 ?? ?? ?? ?? 53 FF 15");
-	if (res.VA) {
-		mode = L"JMS v147.0";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 33 DB 39 1D ?? ?? ?? ?? 56 57 74 05 E8 ?? ?? ?? ?? 53 FF 15");
+		if (res.VA) {
+			mode = L"JMS v147.0";
+			return aix;
+		}
+
+		res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 56 57 33 DB 53 FF 15");
+		if (res.VA) {
+			mode = L"JMS v164.0";
+			return aix;
+		}
 	}
 
-	res = f.AobScan(L"B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 EC ?? 53 56 57 33 DB 53 FF 15");
-	if (res.VA) {
-		mode = L"JMS v164.0";
-		return aix;
-	}
-
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 64 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 78 64 A3 00 00 00 00 33 ?? 5? FF 15");
-	if (res.VA) {
-		mode = L"JMS v188.0";
-		return aix;
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 64 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 78 64 A3 00 00 00 00 33 ?? 5? FF 15");
+		if (res.VA) {
+			mode = L"JMS v188.0";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1311,10 +1336,12 @@ AddrInfoEx Find_AdSpace(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"74 4B 8B 4D FC 89 4F 14 8B 4D 0C 6A 05 50 89 4F 18 FF 15");
-	if (res.VA) {
-		mode = L"GMS v62.1";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"74 4B 8B 4D FC 89 4F 14 8B 4D 0C 6A 05 50 89 4F 18 FF 15");
+		if (res.VA) {
+			mode = L"GMS v62.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1325,16 +1352,18 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 53 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 8A 5C 24 ?? 8A 44 24 ?? 88 5E ?? 88 46 ?? 80 FB 01 75");
-	if (res.VA) {
-		mode = L"JMS v194.0";
-		return aix;
-	}
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 53 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B F1 8A 5C 24 ?? 8A 44 24 ?? 88 5E ?? 88 46 ?? 80 FB 01 75");
+		if (res.VA) {
+			mode = L"JMS v194.0";
+			return aix;
+		}
 
-	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B E9 33 D2 89 54 24 ?? 8B 0D ?? ?? ?? ?? 85 C9 74");
-	if (res.VA) {
-		mode = L"JMS v302.0";
-		return aix;
+		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 ?? 64 A3 00 00 00 00 8B E9 33 D2 89 54 24 ?? 8B 0D ?? ?? ?? ?? 85 C9 74");
+		if (res.VA) {
+			mode = L"JMS v302.0";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1345,10 +1374,12 @@ AddrInfoEx Find_WzRSAEncryptStringForLoginPassword(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"8D 85 ?? ?? ?? ?? 50 FF 75 0C FF 75 F0 FF 75 10 FF 15 ?? ?? ?? ?? 83 C4 1C 6A FF 8D 85 ?? ?? ?? ?? 50");
-	if (res.VA) {
-		mode = L"JMS v147.0";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"8D 85 ?? ?? ?? ?? 50 FF 75 0C FF 75 F0 FF 75 10 FF 15 ?? ?? ?? ?? 83 C4 1C 6A FF 8D 85 ?? ?? ?? ?? 50");
+		if (res.VA) {
+			mode = L"JMS v147.0";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1359,11 +1390,13 @@ AddrInfoEx Find_JumpDown(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"FF 15 ?? ?? ?? ?? 8B 4D ?? 8B 41 ?? 83 78 ?? 00 C6 45 ?? 01 74 ?? 80 65 ?? 00 85 C9 74");
-	if (res.VA) {
-		res = f.GetAddrInfo(res.VA + 0x14);
-		mode = L"JMS v147.0";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"FF 15 ?? ?? ?? ?? 8B 4D ?? 8B 41 ?? 83 78 ?? 00 C6 45 ?? 01 74 ?? 80 65 ?? 00 85 C9 74");
+		if (res.VA) {
+			res = f.GetAddrInfo(res.VA + 0x14);
+			mode = L"JMS v147.0";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1375,11 +1408,13 @@ AddrInfoEx Find_TerminateFix_1(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"C7 45 FC 0B 00 00 00 74 14 83 60 28 00 8B 0D ?? ?? ?? ?? E8");
-	if (res.VA) {
-		res = f.GetAddrInfo(res.VA + 0x07);
-		mode = L"GMS v65.1";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"C7 45 FC 0B 00 00 00 74 14 83 60 28 00 8B 0D ?? ?? ?? ?? E8");
+		if (res.VA) {
+			res = f.GetAddrInfo(res.VA + 0x07);
+			mode = L"GMS v65.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1390,10 +1425,12 @@ AddrInfoEx Find_TerminateFix_2(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"BB ?? ?? ?? ?? 56 8B CB E8 ?? ?? ?? ?? 84 C0 75 ?? A1");
-	if (res.VA) {
-		mode = L"GMS v65.1";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"BB ?? ?? ?? ?? 56 8B CB E8 ?? ?? ?? ?? 84 C0 75 ?? A1");
+		if (res.VA) {
+			mode = L"GMS v65.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1404,11 +1441,13 @@ AddrInfoEx Find_TerminateFix_3(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"80 65 FC 00 8D 4E 20 E8 ?? ?? ?? ?? 8B 4D F4 83 25 ?? ?? ?? ?? 00 5E 64 89 0D 00 00 00 00 C9 C3");
-	if (res.VA) {
-		res = f.GetAddrInfo(res.VA + 0x07);
-		mode = L"GMS v65.1";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"80 65 FC 00 8D 4E 20 E8 ?? ?? ?? ?? 8B 4D F4 83 25 ?? ?? ?? ?? 00 5E 64 89 0D 00 00 00 00 C9 C3");
+		if (res.VA) {
+			res = f.GetAddrInfo(res.VA + 0x07);
+			mode = L"GMS v65.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1419,11 +1458,13 @@ AddrInfoEx Find_TerminateFix_4(Frost &f) {
 	std::wstring &mode = aix.mode;
 	AddrInfo &res = aix.info;
 
-	res = f.AobScan(L"83 7C 24 0C 00 53 8B 5C 24 14 89 3D ?? ?? ?? ?? 88 1D ?? ?? ?? ?? 75");
-	if (res.VA) {
-		res = f.GetAddrInfo(res.VA + 0x16);
-		mode = L"GMS v65.1";
-		return aix;
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"83 7C 24 0C 00 53 8B 5C 24 14 89 3D ?? ?? ?? ?? 88 1D ?? ?? ?? ?? 75");
+		if (res.VA) {
+			res = f.GetAddrInfo(res.VA + 0x16);
+			mode = L"GMS v65.1";
+			return aix;
+		}
 	}
 
 	return aix;
