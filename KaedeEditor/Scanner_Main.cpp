@@ -523,6 +523,12 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_1(Frost &f) {
 		return aix;
 	}
 
+	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 85 ?? ?? ?? ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 ?? ?? ?? ?? 33 C0 8D BD ?? ?? ?? ?? F3 AB C7 85 ?? ?? ?? ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 B9 ?? ?? ?? ?? 33 C0 8D BD ?? ?? ?? ?? F3 AB 66 AB AA 8B 85 ?? ?? ?? ?? 50 68 04 01 00 00");
+	if (res.VA) {
+		mode = L"JMS v308.0";
+		return aix;
+	}
+
 	return aix;
 }
 
@@ -545,7 +551,7 @@ AddrInfoEx Find_HackShield_EHSvc_Loader_2(Frost &f) {
 
 	res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 57 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C6 85 ?? ?? ?? ?? 00 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 C7 45 ?? 00 00 00 00 B9 09 00 00 00 33 C0 8D 7D ?? F3 AB");
 	if (res.VA) {
-		mode = L"JMS v334.0";
+		mode = L"JMS v308.0";
 		return aix;
 	}
 
@@ -694,6 +700,21 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 	res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8D 69 ?? 8B CD E8 ?? ?? ?? ?? 85 C0 0F 85");
 	if (res.VA) {
 		mode = L"JMS v188.0";
+		return aix;
+	}
+
+	return aix;
+}
+
+// JMS308 removed ?g_bUseMonitor@@3HA null check and give you crash, thanks!
+AddrInfoEx Find_HackShield_SetUserIdA(Frost &f) {
+	AddrInfoEx aix = { L"__AhnHS_SetUserIdA@4", L"31 C0 C2 04 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"55 8B EC 83 EC 08 C7 45 FC 00 00 00 00 8B 45 08 89 45 F8 8D 4D FC 51 8D 55 F8 52 6A 13 FF 15 58 16 39 01 25 FF 00 00 00 83 F8 01 74");
+	if (res.VA) {
+		mode = L"JMS v308.0";
 		return aix;
 	}
 
@@ -1075,6 +1096,12 @@ AddrInfoEx Find_DR_Check(Frost &f) {
 	AddrInfo &res = aix.info;
 
 	if (GetDEVM()) {
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 C7 85 ?? ?? ?? ?? 00 00 00 00 C7 85 ?? ?? ?? ?? 10 00 01 00 8B 45 08 8B 48 10 81 F1 AD 81 DE 19 81 F9 10 20 00 00 75");
+		if (res.VA) {
+			mode = L"JMS v308.0";
+			return aix;
+		}
+
 		res = f.AobScan(L"55 8B EC 81 EC F0 02 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 FC 53 56 57 6A 00 E9");
 		if (res.VA) {
 			mode = L"JMS v331.0";
@@ -1524,6 +1551,7 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 		CheckScanState(is_hackshield_removal_failed);
 		ADDSCANRESULT(HackShield_HSUpdate);
 		CheckScanState(is_hackshield_removal_failed);
+		ADDSCANRESULT(HackShield_SetUserIdA); // JMS308+
 	}
 	// HackShield Removal Method 2, null ptr check exploit.
 	if (is_hackshield_removal_failed) {
