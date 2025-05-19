@@ -503,6 +503,15 @@ AddrInfoEx Find_HackShield_Init(Frost &f) {
 		return aix;
 	}
 
+	if (GetDEVM()) {
+		res = f.AobScan(L"55 8B EC 51 51 56 8B F1 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 E8 ?? ?? ?? ?? 85 C0 74 ?? 50 8D 4D ?? E8 ?? ?? ?? ?? 68 ?? ?? ?? ?? 8D 45 ?? 50 E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 6A 01");
+		if (res.VA) {
+			aix.patch = L"31 C0 C3";
+			mode = L"GMS v83.1";
+			return aix;
+		}
+	}
+
 	return aix;
 }
 
@@ -701,6 +710,14 @@ AddrInfoEx Find_HackShield_HSUpdate(Frost &f) {
 	if (res.VA) {
 		mode = L"JMS v188.0";
 		return aix;
+	}
+
+	if (GetDEVM()) {
+		res = f.AobScan(L"55 8B EC 81 EC ?? ?? ?? ?? 53 56 57 8B D9 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 8A 15 ?? ?? ?? ?? 31 C0 B9 40 00 00 00 88 95 ?? ?? ?? ?? 8D BD ?? ?? ?? ?? F3 AB 66 AB AA 6A 40 31 C0");
+		if (res.VA) {
+			mode = L"GMS v83.1";
+			return aix;
+		}
 	}
 
 	return aix;
@@ -1510,12 +1527,66 @@ AddrInfoEx Find_TerminateFix_4(Frost &f) {
 }
 
 
+// GMS v83+
+AddrInfoEx Find_NMCO_1_Start(Frost &f) {
+	AddrInfoEx aix = { L"NMCO_1_Start", L"" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"57 68 C9 00 00 00 FF 75 0C FF 75 08 E8");
+		if (res.VA) {
+			mode = L"GMS v83.1";
+			return aix;
+		}
+	}
+
+	return aix;
+}
+
+
+AddrInfoEx Find_NMCO_1_End(Frost &f) {
+	AddrInfoEx aix = { L"NMCO_1_End", L"" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"6A 01 5B 8D 4D ?? E8 ?? ?? ?? ?? 8D 4D ?? C7 45 ?? 02 00 00 00 E8");
+		if (res.VA) {
+			res = f.GetAddrInfo(res.VA + 0x03);
+			mode = L"GMS v83.1";
+			return aix;
+		}
+	}
+
+	return aix;
+}
+
+
+AddrInfoEx Find_NMCO_2_Start(Frost &f) {
+	AddrInfoEx aix = { L"NMCO_2_Start", L"" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"51 8B CC 89 65 ?? 83 CE FF 56 FF 75 0C C6 45 ?? 03 89 39 E8");
+		if (res.VA) {
+			mode = L"GMS v83.1";
+			return aix;
+		}
+	}
+
+	return aix;
+}
+
+
 std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	std::vector<AddrInfoEx> result;
 	bool vmprotect = false;
 	bool is_gameguard_removal_faield = false;
 	bool is_hackshield_removal_failed = false;
 	bool is_vmprotect = false;
+	bool is_NMCO_failed = false;
 
 	// Login Server IP
 	Find_String_IPs(f, result);
@@ -1591,6 +1662,15 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
 	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
+	// NMCO, GMS Login
+	{
+		ADDSCANRESULT(NMCO_1_Start);
+		CheckScanState(is_NMCO_failed);
+		if (!is_NMCO_failed) {
+			ADDSCANRESULT(NMCO_1_End);
+			ADDSCANRESULT(NMCO_2_Start);
+		}
+	}
 	// Bug Fix
 	ADDSCANRESULT(JumpDown);
 	ADDSCANRESULT(TerminateFix_1);
