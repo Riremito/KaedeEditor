@@ -74,13 +74,13 @@ std::vector<AddrInfoEx> Scanner_SelfCrash(Frost &f) {
 			result.push_back(aix);
 		}
 	}
-	// TWMS148, EMS89
+	// TWMS148, EMS89, CMS104
 	{
 		// set 0x101210 to ptr (MSCRC for SendPacket)
 		AddrInfoEx aix = { L"CheapCrash_v2", L"8B 44 24 08 C7 00 10 12 10 00 31 C0 C3", L"Call_Random_v2" };
 		AddrInfo &res = aix.info;
 
-		for (auto &v : f.AobScanAll(L"55 8B EC 83 EC 7C 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 8B 75 08 B9 1E 00 00 00 31 C0 8D 7D 84 F3 AB 8D 7D 84 C7")) {
+		for (auto &v : f.AobScanAll(L"55 8B EC 83 EC 7C 53 56 57 EB 10 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 8B 75 08 B9 ?? ?? ?? ?? 31 C0 8D 7D 84 F3 AB 8D 7D 84 C7")) {
 			res = v;
 			result.push_back(aix);
 		}
