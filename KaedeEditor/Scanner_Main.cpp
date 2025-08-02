@@ -187,6 +187,12 @@ bool Find_String_IPs(Frost &f, std::vector<AddrInfoEx> &result) {
 			mode = L"KMS v2.109";
 			result.push_back(aix);
 		}
+		res = f.ScanString("220.90.204.21");
+		if (res.VA) {
+			aix.patch = StrPatchPadding(res, L"127.0.0.1");
+			mode = L"KMSB v1.68";
+			result.push_back(aix);
+		}
 	}
 
 	if (is_hit) {
