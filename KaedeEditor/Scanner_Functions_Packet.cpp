@@ -474,6 +474,14 @@ AddrInfoEx Find_Addr_Decode1(Frost &f) {
 		}
 	}
 
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"51 0F B7 41 0C 8B 51 14 56 8B 71 08 2B C2 03 F2 83 F8 01 73 17 68 ?? ?? ?? ?? 8D 4C 24 08 51 C7 44 24 0C 26 00 00 00 E8 ?? ?? ?? ?? 8A 06 42 89 51 14 5E 59 C3");
+		if (res.VA) {
+			mode = L"CMS v88.1";
+			return aix;
+		}
+	}
+
 	return aix;
 }
 
@@ -514,6 +522,14 @@ AddrInfoEx Find_Addr_Decode2(Frost &f) {
 		res = f.AobScan(L"55 8B EC 51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 02 5E 73 ?? 68");
 		if (res.VA) {
 			mode = L"BMS v24.0";
+			return aix;
+		}
+	}
+
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 02 5E 73 17 68 ?? ?? ?? ?? 8D 44 24 04 50 C7 44 24 08 26 00 00 00 E8 ?? ?? ?? ?? 0F B7 00 83 C2 02 89 51 14 59 C3");
+		if (res.VA) {
+			mode = L"CMS v88.1";
 			return aix;
 		}
 	}
@@ -566,6 +582,14 @@ AddrInfoEx Find_Addr_Decode4(Frost &f) {
 		}
 	}
 
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"51 8B 51 14 8B 41 08 56 0F B7 71 0C 2B F2 03 C2 83 FE 04 5E 73 17 68 ?? ?? ?? ?? 8D 44 24 04 50 C7 44 24 08 26 00 00 00 E8 ?? ?? ?? ?? 8B 00 83 C2 04 89 51 14 59 C3");
+		if (res.VA) {
+			mode = L"CMS v88.1";
+			return aix;
+		}
+	}
+
 	return aix;
 }
 
@@ -610,6 +634,14 @@ AddrInfoEx Find_Addr_DecodeStr(Frost &f) {
 		res = f.AobScan(L"55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC ?? 53 56 57 A1 ?? ?? ?? ?? 33 C5 50 8D 45 ?? 64 A3 00 00 00 00 89 65 ?? 8B F1 89 75 ?? C7 45 ?? 00 00 00 00 8B 7D 08 B8 01 00 00 00 89 45 ?? C7 07 00 00 00 00 8B 56 0C 8B 4E 08 89 45 ?? 8B 46 18 2B D0 52 03 C1 50 57 E8 ?? ?? ?? ?? 83 C4 0C 01 46 18");
 		if (res.VA) {
 			mode = L"GMS v126.1";
+			return aix;
+		}
+	}
+
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 51 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 10 64 A3 00 00 00 00 8B F1 33 C0 89 44 24 0C 8B 7C 24 20 89 07 0F B7 56 0C 8B 4E 08 89 44 24 18 8B 46 14 2B D0 52 03 C1 50 57 C7 44 24 18 01 00 00 00 E8 ?? ?? ?? ?? 83 C4 0C 01 46 14 8B C7 8B 4C 24 10 64 89 0D 00 00 00 00 59 5F 5E 83 C4 10 C2 04");
+		if (res.VA) {
+			mode = L"CMS v88.1";
 			return aix;
 		}
 	}
