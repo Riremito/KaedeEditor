@@ -1532,22 +1532,6 @@ AddrInfoEx Find_MapleNetwork(Frost &f) {
 	return aix;
 }
 
-AddrInfoEx Find_WzRSAEncryptStringForLoginPassword(Frost &f) {
-	AddrInfoEx aix = { L"WzRSAEncryptStringForLoginPassword", L"EB 14 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 83 C4 0C 6A FF 8B 45 08 FF 30 EB 00" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2006) {
-		res = f.AobScan(L"8D 85 ?? ?? ?? ?? 50 FF 75 0C FF 75 F0 FF 75 10 FF 15 ?? ?? ?? ?? 83 C4 1C 6A FF 8D 85 ?? ?? ?? ?? 50");
-		if (res.VA) {
-			mode = L"JMS v147.0";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
 AddrInfoEx Find_JumpDown(Frost &f) {
 	AddrInfoEx aix = { L"JumpDown", L"EB" };
 	std::wstring &mode = aix.mode;
@@ -1633,125 +1617,12 @@ AddrInfoEx Find_TerminateFix_4(Frost &f) {
 	return aix;
 }
 
-// GMS v83+
-AddrInfoEx Find_NMCO_1_Start(Frost &f) {
-	AddrInfoEx aix = { L"NMCO_1_Start", L"" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2006) {
-		res = f.AobScan(L"57 68 C9 00 00 00 FF 75 0C FF 75 08 E8");
-		if (res.VA) {
-			mode = L"GMS v83.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-AddrInfoEx Find_NMCO_1_End(Frost &f) {
-	AddrInfoEx aix = { L"NMCO_1_End", L"" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2006) {
-		res = f.AobScan(L"6A 01 5B 8D 4D ?? E8 ?? ?? ?? ?? 8D 4D ?? C7 45 ?? 02 00 00 00 E8");
-		if (res.VA) {
-			res = f.GetAddrInfo(res.VA + 0x03);
-			mode = L"GMS v83.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-AddrInfoEx Find_NMCO_2_Start(Frost &f) {
-	AddrInfoEx aix = { L"NMCO_2_Start", L"" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2006) {
-		res = f.AobScan(L"51 8B CC 89 65 ?? 83 CE FF 56 FF 75 0C C6 45 ?? 03 89 39 E8");
-		if (res.VA) {
-			mode = L"GMS v83.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-// NMCO new code.
-AddrInfoEx Find_SendCheckPasswordPacket(Frost &f) {
-	AddrInfoEx aix = { L"?SendCheckPasswordPacket@CLogin@@QAEHPBD0@Z" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2008) {
-		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8B ?? 24 ?? ?? ?? ?? 8B ?? 24 ?? ?? ?? ?? 8B F1");
-		if (res.VA) {
-			mode = L"GMS v95.1";
-			return aix;
-		}
-
-		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? 53 55 56 57 A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8B F1 83 BE ?? ?? ?? ?? 00 BD 01 00 00 00 89 AC 24 ?? ?? ?? ?? 74");
-		if (res.VA) {
-			mode = L"GMS v117.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-AddrInfoEx Find_LoginAuth(Frost &f) {
-	AddrInfoEx aix = { L"?LoginAuth@CNMCOClientObject@@QAE?AW4NMLoginAuthReplyCode@@PBD0H0@Z" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2008) {
-		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8B 94 24 ?? ?? ?? ?? 8B 8C 24 ?? ?? ?? ?? 8B 84 24 ?? ?? ?? ?? 52 8B 94 24 ?? ?? ?? ?? 52 51 50 8D 4C 24 14 E8");
-		if (res.VA) {
-			mode = L"GMS v95.1";
-			return aix;
-		}
-
-		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? 56 A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8B B4 24 ?? ?? ?? ?? 8B 94 24 ?? ?? ?? ?? 8B 8C 24 ?? ?? ?? ?? 8B 84 24 ?? ?? ?? ?? 56 52 8B 94 24 ?? ?? ?? ?? 52 51 50 8D 4C 24 1C E8");
-		if (res.VA) {
-			mode = L"GMS v111.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-AddrInfoEx Find_GetNexonPassport(Frost &f) {
-	AddrInfoEx aix = { L"?GetNexonPassport@CNMCOClientObject@@QAEPBDPAD@Z" };
-	std::wstring &mode = aix.mode;
-	AddrInfo &res = aix.info;
-
-	if (GetCFlag() & CF_VS2008) {
-		res = f.AobScan(L"6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? A1 ?? ?? ?? ?? 33 C4 89 84 24 ?? ?? ?? ?? 56 A1 ?? ?? ?? ?? 33 C4 50 8D 84 24 ?? ?? ?? ?? 64 A3 00 00 00 00 8B B4 24 ?? ?? ?? ?? 8D 4C 24 08 E8 ?? ?? ?? ?? 8D 44 24 08 50 C7 84 24 ?? ?? ?? ?? 00 00 00 00 E8 ?? ?? ?? ?? 8B C8 E8 ?? ?? ?? ?? 85 C0 74 ?? 68 00 04 00 00");
-		if (res.VA) {
-			mode = L"GMS v95.1";
-			return aix;
-		}
-	}
-
-	return aix;
-}
-
-
 std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	std::vector<AddrInfoEx> result;
 	bool vmprotect = false;
 	bool is_gameguard_removal_faield = false;
 	bool is_hackshield_removal_failed = false;
 	bool is_vmprotect = false;
-	bool is_NMCO_failed = false;
 
 	// Login Server IP
 	Find_String_IPs(f, result);
@@ -1827,19 +1698,6 @@ std::vector<AddrInfoEx> Scanner_Main(Frost &f) {
 	ADDSCANRESULT(MapleNetwork);
 	ADDSCANRESULT(WindowMode);
 	ADDSCANRESULT(Launcher);
-	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
-	// NMCO, GMS Login
-	{
-		ADDSCANRESULT(NMCO_1_Start);
-		CheckScanState(is_NMCO_failed);
-		if (!is_NMCO_failed) {
-			ADDSCANRESULT(NMCO_1_End);
-			ADDSCANRESULT(NMCO_2_Start);
-		}
-		ADDSCANRESULT(SendCheckPasswordPacket);
-		ADDSCANRESULT(LoginAuth);
-		ADDSCANRESULT(GetNexonPassport);
-	}
 	// Bug Fix
 	ADDSCANRESULT(JumpDown);
 	ADDSCANRESULT(TerminateFix_1);

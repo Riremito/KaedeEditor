@@ -160,6 +160,7 @@
     <ClCompile Include="Scanner_Functions_Others64.cpp" />
     <ClCompile Include="Scanner_Functions_Packet.cpp" />
     <ClCompile Include="Scanner_Functions_Packet64.cpp" />
+    <ClCompile Include="Scanner_NMCO.cpp" />
     <ClCompile Include="Scanner_SelfCrash.cpp" />
     <ClCompile Include="Scanner_Themida_VMProtect.cpp" />
     <ClCompile Include="SimpleGUI.cpp" />

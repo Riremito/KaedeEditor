@@ -193,16 +193,17 @@ bool Thread_Main() {
 	return true;
 }
 
-bool Thread_Client_Edit() {
+bool Thread_ASProtect() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
 	std::vector<AddrInfoEx> vaix;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
 	// x86 Only
 	if (f.Isx64()) {
 		INFO_ADD(L"// x64 is not supported.");
 	}
 	else {
-		vaix = Scanner_Client_Edit(f);
+		vaix = Scanner_ASProtect(f, vm_section);
 	}
 
 	RunAobScanner(vaix, BUTTON_AOBSCAN);
@@ -231,27 +232,32 @@ bool Thread_SelfCrash() {
 	return true;
 }
 
-bool Thread_Themida_VMProtect() {
-	Frost &f = *frost_dropped;
-	Alice &a = *alice_global;
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
-	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Themida_VMProtect64(f, vm_section) : Scanner_Themida_VMProtect(f, vm_section);
-
-	RunAobScanner(vaix, BUTTON_AOBSCAN);
-	return true;
-}
-
-bool Thread_ASProtect() {
+bool Thread_NMCO() {
 	Frost &f = *frost_dropped;
 	Alice &a = *alice_global;
 	std::vector<AddrInfoEx> vaix;
-	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 6
 	// x86 Only
 	if (f.Isx64()) {
 		INFO_ADD(L"// x64 is not supported.");
 	}
 	else {
-		vaix = Scanner_ASProtect(f, vm_section);
+		vaix = Scanner_NMCO(f);
+	}
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
+bool Thread_Client_Edit() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	std::vector<AddrInfoEx> vaix;
+	// x86 Only
+	if (f.Isx64()) {
+		INFO_ADD(L"// x64 is not supported.");
+	}
+	else {
+		vaix = Scanner_Client_Edit(f);
 	}
 
 	RunAobScanner(vaix, BUTTON_AOBSCAN);
@@ -289,11 +295,29 @@ bool Thread_127_0_0_1() {
 	return true;
 }
 
+bool Thread_Themida_VMProtect() {
+	Frost &f = *frost_dropped;
+	Alice &a = *alice_global;
+	int vm_section = _wtoi(a.GetText(EDIT_VM_SECTION).c_str()); // x86 = 3, x64 = 11
+	std::vector<AddrInfoEx> vaix = f.Isx64() ? Scanner_Themida_VMProtect64(f, vm_section) : Scanner_Themida_VMProtect(f, vm_section);
+
+	RunAobScanner(vaix, BUTTON_AOBSCAN);
+	return true;
+}
+
 bool RunScanner(Alice &a, ScannerIndex si) {
 	LPTHREAD_START_ROUTINE thread_func = NULL;
 	switch (si) {
 	case SI_Main: {
 		thread_func = (decltype(thread_func))Thread_Main;
+		break;
+	}
+	case SI_ASProtect: {
+		thread_func = (decltype(thread_func))Thread_ASProtect;
+		break;
+	}
+	case SI_NMCO: {
+		thread_func = (decltype(thread_func))Thread_NMCO;
 		break;
 	}
 	case SI_Self_Crash: {
@@ -302,14 +326,6 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 	}
 	case SI_Client_Edit: {
 		thread_func = (decltype(thread_func))Thread_Client_Edit;
-		break;
-	}
-	case SI_Themida_VMProtect: {
-		thread_func = (decltype(thread_func))Thread_Themida_VMProtect;
-		break;
-	}
-	case SI_ASProtect: {
-		thread_func = (decltype(thread_func))Thread_ASProtect;
 		break;
 	}
 	case SI_Functions_Packet: {
@@ -322,6 +338,10 @@ bool RunScanner(Alice &a, ScannerIndex si) {
 	}
 	case SI_127_0_0_1: {
 		thread_func = (decltype(thread_func))Thread_127_0_0_1;
+		break;
+	}
+	case SI_Themida_VMProtect: {
+		thread_func = (decltype(thread_func))Thread_Themida_VMProtect;
 		break;
 	}
 	default: {
