@@ -18,6 +18,57 @@ AddrInfoEx Find_WzRSAEncryptStringForLoginPassword(Frost &f) {
 	return aix;
 }
 
+// CmdLine Check GMS.
+AddrInfoEx Find_CmdLine_Check_1(Frost &f) {
+	AddrInfoEx aix = { L"CmdLine_Check_1", L"90 90 90 90 90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"0F 85 ?? ?? ?? ?? 6A 00 8D 85 ?? ?? ?? ?? 50 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 89 85 ?? ?? ?? ?? B8");
+		if (res.VA) {
+			mode = L"GMS v84.1";
+			return aix;
+		}
+	}
+
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"0F 85 ?? ?? ?? ?? 6A 00 8D 95 ?? ?? ?? ?? 52 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 89 85 ?? ?? ?? ?? 68 ?? ?? ?? ?? 8B 8D ?? ?? ?? ?? E8");
+		if (res.VA) {
+			mode = L"GMS v95.1";
+			return aix;
+		}
+	}
+
+	return aix;
+}
+
+AddrInfoEx Find_CmdLine_Check_2(Frost &f) {
+	AddrInfoEx aix = { L"CmdLine_Check_2", L"90 90" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	if (GetCFlag() & CF_VS2006) {
+		res = f.AobScan(L"74 ?? 6A FF 6A 0D 8D 85 ?? ?? ?? ?? 50 8B 8D ?? ?? ?? ?? 83 C1 20 E8");
+		if (res.VA) {
+			mode = L"GMS v84.1";
+			return aix;
+		}
+	}
+
+	if (GetCFlag() & CF_VS2008) {
+		res = f.AobScan(L"74 ?? 6A 01 8D 85 ?? ?? ?? ?? 50 8B 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8D 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 75");
+		if (res.VA) {
+			mode = L"GMS v95.1";
+			return aix;
+		}
+	}
+
+	return aix;
+}
+
+// TODO : COMD LINE CHECK GMS111+
+
 // GMS v83+
 AddrInfoEx Find_NMCO_1_Start(Frost &f) {
 	AddrInfoEx aix = { L"NMCO_1_Start", L"" };
@@ -165,6 +216,8 @@ std::vector<AddrInfoEx> Scanner_NMCO(Frost &f) {
 	std::vector<AddrInfoEx> result;
 
 	ADDSCANRESULT(WzRSAEncryptStringForLoginPassword);
+	ADDSCANRESULT(CmdLine_Check_1);
+	ADDSCANRESULT(CmdLine_Check_2);
 
 	bool is_NMCO_failed = false;
 	// NMCO, GMS Login
