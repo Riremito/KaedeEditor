@@ -166,6 +166,20 @@ AddrInfoEx Find_Extra_PointItemMultipleDrop(Frost &f) {
 	return aix;
 }
 
+AddrInfoEx Find_Extra_JoyStickFix(Frost &f) {
+	AddrInfoEx aix = { L"?Update@CInputSystem@@QAEXJ@Z" , L"31 C0 C2 04 00" };
+	std::wstring &mode = aix.mode;
+	AddrInfo &res = aix.info;
+
+	res = f.AobScan(L"8B 44 24 04 2B 81 ?? ?? ?? ?? 3D 88 13 00 00 7C 05 E8 ?? ?? ?? ?? C2 04 00");
+	if (res.VA) {
+		mode = L"JMS v186.1";
+		return aix;
+	}
+
+	return aix;
+}
+
 
 std::vector<AddrInfoEx> Scanner_Client_Edit(Frost &f) {
 	std::vector<AddrInfoEx> result;
@@ -181,5 +195,7 @@ std::vector<AddrInfoEx> Scanner_Client_Edit(Frost &f) {
 	ADDSCANRESULT(Extra_MapDropLimit);
 	ADDSCANRESULT(Extra_PointItemDropLimit);
 	ADDSCANRESULT(Extra_PointItemMultipleDrop);
+	// Joy Stick Fix
+	ADDSCANRESULT(Extra_JoyStickFix);
 	return result;
 }
